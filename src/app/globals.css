@@ -1,0 +1,132 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: var(--font-newsreader), Georgia, serif;
+  --font-display: var(--font-instrument), Georgia, serif;
+
+  /* radii — quiet, editorial */
+  --radius-card: 6px;
+  --radius-btn: 3px;
+  --radius-field: 3px;
+
+  /* soft popover shadow (the only shadow in the system) */
+  --shadow-pop: 0 14px 40px -16px rgba(20, 18, 16, 0.22);
+
+  /* palette — warm monochrome; colour comes from the art */
+  --color-brand-50: #F6F5F3;
+  --color-brand-100: #E9E7E3;
+  --color-brand-200: #CFCBC4;
+  --color-brand-300: #ABA59B;
+  --color-brand-400: #7D766B;
+  --color-brand-500: #544E45;
+  --color-brand-600: #3C372F;
+  --color-brand-700: #2B2722;
+  --color-brand-800: #1C1916;
+  --color-brand-900: #141210;
+  --color-brand-950: #0A0908;
+
+  --color-accent-50: #FAF2EC;
+  --color-accent-100: #F1DFD2;
+  --color-accent-200: #E3C0A9;
+  --color-accent-300: #D29E7F;
+  --color-accent-400: #BE7E5A;
+  --color-accent-500: #A86344;
+  --color-accent-600: #8C4F35;
+  --color-accent-700: #6F3E2B;
+  --color-accent-800: #523025;
+  --color-accent-900: #3C2620;
+  --color-accent-950: #21130F;
+
+  --color-ink-50: #FAFAF8;
+  --color-ink-100: #F4F3F0;
+  --color-ink-200: #E8E6E1;
+  --color-ink-300: #D7D4CD;
+  --color-ink-400: #AEAAA1;
+  --color-ink-500: #827E76;
+  --color-ink-600: #5E5B54;
+  --color-ink-700: #454239;
+  --color-ink-800: #2A2823;
+  --color-ink-900: #1A1815;
+  --color-ink-950: #100F0D;
+
+  --color-success-50: #F0F4EE;
+  --color-success-100: #DCE6D6;
+  --color-success-200: #BACDB0;
+  --color-success-300: #92AE85;
+  --color-success-400: #6E8E60;
+  --color-success-500: #537046;
+  --color-success-600: #405837;
+  --color-success-700: #33452C;
+  --color-success-800: #283626;
+  --color-success-900: #1F2A1E;
+  --color-success-950: #10160F;
+
+  --color-warning-50: #FBF4E9;
+  --color-warning-100: #F5E4C7;
+  --color-warning-200: #E9C68C;
+  --color-warning-300: #DBA755;
+  --color-warning-400: #C98C34;
+  --color-warning-500: #A8732A;
+  --color-warning-600: #875B24;
+  --color-warning-700: #6A481F;
+  --color-warning-800: #50381C;
+  --color-warning-900: #3D2C18;
+  --color-warning-950: #21170C;
+
+  --color-danger-50: #FBF0EE;
+  --color-danger-100: #F5DBD6;
+  --color-danger-200: #E8B5AC;
+  --color-danger-300: #D88B7D;
+  --color-danger-400: #C56554;
+  --color-danger-500: #A94A3A;
+  --color-danger-600: #8B3A2D;
+  --color-danger-700: #6E2F26;
+  --color-danger-800: #532721;
+  --color-danger-900: #3F1F1B;
+  --color-danger-950: #22100D;
+
+  --color-info-50: #EEF1F4;
+  --color-info-100: #D7DEE6;
+  --color-info-200: #B0BFCD;
+  --color-info-300: #849BAF;
+  --color-info-400: #5F7A91;
+  --color-info-500: #496175;
+  --color-info-600: #3A4D5D;
+  --color-info-700: #2F3E4A;
+  --color-info-800: #283139;
+  --color-info-900: #20272D;
+  --color-info-950: #111519;
+
+  --color-iris-50: #F1F0F4;
+  --color-iris-100: #DEDBE6;
+  --color-iris-200: #BFB9CE;
+  --color-iris-300: #9990AF;
+  --color-iris-400: #776C90;
+  --color-iris-500: #5E5475;
+  --color-iris-600: #4A425D;
+  --color-iris-700: #3D374A;
+  --color-iris-800: #322E3A;
+  --color-iris-900: #28252F;
+  --color-iris-950: #161319;
+
+  --color-flame-50: #FBF1EC;
+  --color-flame-100: #F4DCD0;
+  --color-flame-200: #E7BBA3;
+  --color-flame-300: #D9926E;
+  --color-flame-400: #C76F45;
+  --color-flame-500: #AC5733;
+  --color-flame-600: #8E4529;
+  --color-flame-700: #713823;
+  --color-flame-800: #552C20;
+  --color-flame-900: #40231B;
+  --color-flame-950: #22110D;
+}
+
+body {
+  font-family: var(--font-newsreader), Georgia, serif;
+}
+
+.font-display {
+  font-family: var(--font-instrument), Georgia, serif;
+}
