@@ -5,12 +5,35 @@ import { db } from "@/db";
 import { featured } from "@/db/schema";
 import { requireAdmin } from "@/lib/session";
 
-export async function addFeatured(formData: FormData) {
+// Add one or more directly-uploaded images as slides.
+export async function addFeaturedImages(
+  imgs: { url: string; width: number; height: number; title?: string }[],
+) {
   await requireAdmin();
-  const paintingId = Number(formData.get("paintingId"));
+  if (!imgs.length) return;
   const rows = await db.select().from(featured);
-  if (rows.some((r) => r.paintingId === paintingId)) return;
-  await db.insert(featured).values({ paintingId, position: rows.length });
+  let pos = rows.length;
+  for (const img of imgs) {
+    await db.insert(featured).values({
+      imageUrl: img.url,
+      title: img.title || null,
+      width: img.width || null,
+      height: img.height || null,
+      position: pos++,
+    });
+  }
+  revalidatePath("/admin/featured");
+  revalidatePath("/");
+}
+
+export async function setFeaturedTitle(formData: FormData) {
+  await requireAdmin();
+  const id = Number(formData.get("id"));
+  const title = String(formData.get("title") ?? "").trim();
+  await db
+    .update(featured)
+    .set({ title: title || null })
+    .where(eq(featured.id, id));
   revalidatePath("/admin/featured");
   revalidatePath("/");
 }

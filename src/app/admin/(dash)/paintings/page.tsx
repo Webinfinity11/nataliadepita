@@ -1,26 +1,46 @@
-import Link from "next/link";
 import { asc } from "drizzle-orm";
 import { db } from "@/db";
 import { paintings, categories } from "@/db/schema";
 import { createPainting } from "./actions";
+import { PaintingsBrowser } from "./PaintingsBrowser";
 
 export default async function PaintingsPage() {
-  const cats = await db.select().from(categories).orderBy(asc(categories.name));
+  const cats = await db
+    .select()
+    .from(categories)
+    .orderBy(asc(categories.position), asc(categories.name));
   const rows = await db
     .select()
     .from(paintings)
     .orderBy(asc(paintings.position), asc(paintings.title));
+
+  const catName = new Map(cats.map((c) => [c.id, c.name]));
+  const enriched = rows.map((p) => ({
+    id: p.id,
+    title: p.title,
+    coverPhotoUrl: p.coverPhotoUrl,
+    categoryName: catName.get(p.categoryId) ?? "—",
+  }));
+
   return (
-    <div className="space-y-8">
-      <h1 className="font-display text-3xl">Paintings</h1>
-      <form action={createPainting} className="flex gap-2">
-        <input
-          name="title"
-          placeholder="Title"
-          required
-          className="border p-2"
-        />
-        <select name="categoryId" required className="border p-2">
+    <div className="space-y-10">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-xs uppercase tracking-[0.28em] text-ink-400">Portfolio</p>
+          <h1 className="mt-2 font-display text-4xl tracking-tight text-ink-900">
+            Paintings
+          </h1>
+        </div>
+        <span className="text-sm text-ink-500">{rows.length} works total</span>
+      </header>
+
+      {/* create */}
+      <form
+        action={createPainting}
+        className="flex flex-wrap items-center gap-3 rounded-[8px] border border-ink-200 bg-white p-4"
+      >
+        <input name="title" placeholder="Title" required className="min-w-[180px]" />
+        <select name="categoryId" required>
           {cats.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -30,41 +50,20 @@ export default async function PaintingsPage() {
         <input
           name="description"
           placeholder="Description (optional)"
-          className="border p-2 flex-1"
+          className="min-w-[200px] flex-1"
         />
-        <button className="bg-neutral-900 text-white px-4">Create</button>
+        <button className="bg-ink-900 px-4 py-2 text-sm font-medium text-ink-50">
+          Create
+        </button>
       </form>
-      {cats.length === 0 && (
-        <p className="text-sm text-neutral-500">
+
+      {cats.length === 0 ? (
+        <p className="rounded-[8px] border border-warning-200 bg-warning-50 px-4 py-3 text-sm text-warning-700">
           Create a category first before adding paintings.
         </p>
+      ) : (
+        <PaintingsBrowser rows={enriched} categories={cats.map((c) => c.name)} />
       )}
-      <ul className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-        {rows.map((p) => (
-          <li key={p.id} className="border">
-            <Link
-              href={`/admin/paintings/${p.id}`}
-              className="block hover:opacity-90"
-            >
-              {p.coverPhotoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={p.coverPhotoUrl}
-                  alt={p.title}
-                  className="aspect-square w-full object-cover bg-neutral-100"
-                />
-              ) : (
-                <div className="aspect-square w-full grid place-items-center bg-neutral-100 text-xs text-neutral-400">
-                  no image
-                </div>
-              )}
-              <span className="block truncate p-1 text-xs underline">
-                {p.title}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

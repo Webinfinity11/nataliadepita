@@ -32,7 +32,7 @@ export function BlogForm({ post }: { post: BlogPost }) {
               className="object-cover"
             />
           )}
-          <ImageUploader onUploaded={(img) => setCover(img.url)} />
+          <ImageUploader onUploaded={(imgs) => imgs[0] && setCover(imgs[0].url)} />
         </div>
         <Editor value={post.body} onChange={setBody} />
         <div className="flex items-center gap-3">

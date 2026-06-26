@@ -1,6 +1,7 @@
 import { getNavCategories, getSettings } from "@/lib/queries";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import FooterGate from "@/components/FooterGate";
 
 // Public pages read live data from the DB and reflect admin edits, so render
 // them dynamically (inherited by all routes under this layout). This also keeps
@@ -20,7 +21,9 @@ export default async function PublicLayout({
     <div className="flex min-h-screen flex-col bg-ink-50 text-ink-900">
       <SiteHeader categories={cats.map((c) => ({ name: c.name, slug: c.slug }))} />
       <main className="flex-1">{children}</main>
-      <SiteFooter settings={settings} />
+      <FooterGate>
+        <SiteFooter settings={settings} />
+      </FooterGate>
     </div>
   );
 }

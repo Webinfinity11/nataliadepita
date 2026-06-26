@@ -50,10 +50,15 @@ export const photos = pgTable("photos", {
 
 export const featured = pgTable("featured", {
   id: serial("id").primaryKey(),
-  paintingId: integer("painting_id")
-    .notNull()
-    .unique()
-    .references(() => paintings.id, { onDelete: "cascade" }),
+  // A slide is either a directly-uploaded image (imageUrl) or, for legacy
+  // rows, linked to a painting. imageUrl is the source of truth for display.
+  paintingId: integer("painting_id").references(() => paintings.id, {
+    onDelete: "cascade",
+  }),
+  imageUrl: text("image_url"),
+  title: text("title"),
+  width: integer("width"),
+  height: integer("height"),
   position: integer("position").notNull().default(0),
 });
 

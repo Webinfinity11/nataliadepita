@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 type Settings = {
   contactEmail?: string | null;
   phone?: string | null;
@@ -10,19 +8,12 @@ export default function SiteFooter({ settings }: { settings?: Settings }) {
   const email = settings?.contactEmail;
   const phone = settings?.phone;
   const socials = settings?.socialLinks ?? [];
-  const year = 2024;
+  const hasDetails = !!email || !!phone || socials.length > 0;
 
   return (
     <footer className="border-t border-ink-200">
-      <div className="mx-auto flex max-w-[1320px] flex-col gap-8 px-6 py-12 lg:flex-row lg:items-end lg:justify-between lg:px-12">
-        <div>
-          <Link href="/" className="font-display text-2xl tracking-tight text-ink-900">
-            Natalia de Pita
-          </Link>
-          <p className="mt-3 text-sm leading-relaxed text-ink-500">
-            Painter &amp; monumental mosaic artist.
-          </p>
-        </div>
+      {hasDetails && (
+      <div className="mx-auto flex max-w-[1320px] flex-col gap-8 px-6 py-12 lg:flex-row lg:items-end lg:justify-end lg:px-12">
         <div className="flex flex-col gap-1.5 text-sm text-ink-600 lg:items-end">
           {email && (
             <a href={`mailto:${email}`} className="transition-colors hover:text-ink-900">
@@ -51,9 +42,18 @@ export default function SiteFooter({ settings }: { settings?: Settings }) {
           )}
         </div>
       </div>
+      )}
       <div className="border-t border-ink-100 px-6 py-5 text-center lg:px-12">
         <p className="text-xs text-ink-400">
-          © {year} Natalia Amirejibi de Pita. All works reproduced by permission.
+          Copyright © 2026 Created by{" "}
+          <a
+            href="http://infinity.ge/"
+            target="_blank"
+            rel="noreferrer"
+            className="underline decoration-ink-300 underline-offset-2 transition-colors hover:text-ink-700"
+          >
+            INFINITY
+          </a>
         </p>
       </div>
     </footer>

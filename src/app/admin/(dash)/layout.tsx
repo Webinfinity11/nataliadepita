@@ -1,16 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/session";
+import AdminNav from "@/components/admin/AdminNav";
 import { logout } from "../login/actions";
-
-const NAV = [
-  ["Dashboard", "/admin"],
-  ["Categories", "/admin/categories"],
-  ["Paintings", "/admin/paintings"],
-  ["Featured", "/admin/featured"],
-  ["Blog", "/admin/blog"],
-  ["Settings", "/admin/settings"],
-  ["Messages", "/admin/messages"],
-] as const;
 
 export default async function AdminLayout({
   children,
@@ -19,18 +10,28 @@ export default async function AdminLayout({
 }) {
   await requireAdmin();
   return (
-    <div className="min-h-screen grid grid-cols-[220px_1fr]">
-      <aside className="border-r p-4 space-y-2">
-        {NAV.map(([label, href]) => (
-          <Link key={href} href={href} className="block hover:underline">
-            {label}
+    <div className="admin-shell min-h-screen bg-ink-50 text-ink-900 lg:grid lg:grid-cols-[248px_1fr]">
+      <aside className="flex flex-col gap-6 border-b border-ink-200 bg-white px-5 py-5 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:py-7">
+        <div className="flex items-center justify-between lg:block">
+          <Link href="/admin" className="block">
+            <span className="font-display text-xl tracking-tight text-ink-900">
+              Natalia de Pita
+            </span>
+            <span className="mt-0.5 block text-[11px] uppercase tracking-[0.28em] text-ink-400">
+              Studio Admin
+            </span>
           </Link>
-        ))}
-        <form action={logout} className="pt-4">
-          <button className="text-sm text-red-600">Log out</button>
-        </form>
+          {/* mobile logout */}
+          <form action={logout} className="lg:hidden">
+            <button className="text-sm text-danger-600">Log out</button>
+          </form>
+        </div>
+        <AdminNav />
       </aside>
-      <main className="p-8">{children}</main>
+
+      <main className="px-5 py-8 lg:px-10 lg:py-10">
+        <div className="mx-auto max-w-[1100px]">{children}</div>
+      </main>
     </div>
   );
 }

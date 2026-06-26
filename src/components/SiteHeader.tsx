@@ -45,16 +45,16 @@ export default function SiteHeader({ categories }: { categories: Cat[] }) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-ink-200 bg-ink-50/85 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-[1320px] items-center justify-between px-6 py-5 lg:px-12">
+      <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-7 lg:px-14">
         <Link
           href="/"
-          className="font-display text-2xl leading-none tracking-tight text-ink-900"
+          className="font-display text-[26px] leading-none tracking-tight text-ink-900 sm:text-[32px]"
         >
           Natalia&nbsp;de&nbsp;Pita
         </Link>
 
         {/* desktop nav */}
-        <nav className="hidden items-center gap-7 lg:flex">
+        <nav className="hidden items-center gap-9 lg:flex xl:gap-12">
           {NAV.map((l) =>
             l.label === "Portfolio" ? (
               <PortfolioDropdown
@@ -67,8 +67,10 @@ export default function SiteHeader({ categories }: { categories: Cat[] }) {
               <Link
                 key={l.label}
                 href={l.href}
-                className={`text-[13px] tracking-wide transition-colors hover:text-ink-900 ${
-                  isActive(l.label) ? "text-ink-900" : "text-ink-600"
+                className={`text-[16px] font-medium leading-none text-ink-900 transition-colors hover:text-ink-950 ${
+                  isActive(l.label)
+                    ? "underline decoration-1 underline-offset-[7px]"
+                    : ""
                 }`}
               >
                 {l.label}
@@ -146,8 +148,8 @@ function PortfolioDropdown({
     >
       <Link
         href={href}
-        className={`flex items-center gap-1 text-[13px] tracking-wide transition-colors hover:text-ink-900 ${
-          active ? "text-ink-900" : "text-ink-600"
+        className={`flex items-center gap-1.5 text-[16px] font-medium leading-none text-ink-900 transition-colors hover:text-ink-950 ${
+          active ? "underline decoration-1 underline-offset-[7px]" : ""
         }`}
       >
         Portfolio
