@@ -1,6 +1,14 @@
 import { asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { categories, paintings, featured, siteSettings, photos } from "@/db/schema";
+import {
+  categories,
+  paintings,
+  featured,
+  siteSettings,
+  photos,
+  galleryPhotos,
+  videos,
+} from "@/db/schema";
 
 // A feature image (e.g. the Contact page): the highest-resolution portrait
 // painting from the "Paintings" collection. Falls back gracefully to any
@@ -52,6 +60,20 @@ export async function getSettings() {
   return s;
 }
 
+export async function getGalleryPhotos() {
+  return db
+    .select()
+    .from(galleryPhotos)
+    .orderBy(asc(galleryPhotos.position), asc(galleryPhotos.id));
+}
+
+export async function getVideos() {
+  return db
+    .select()
+    .from(videos)
+    .orderBy(asc(videos.position), asc(videos.id));
+}
+
 export async function getAllWorks() {
   const cats = await db
     .select()
@@ -72,8 +94,13 @@ export async function getAllWorks() {
         coverPhotoUrl: p.coverPhotoUrl!,
         categoryName: cat.name,
         categorySlug: cat.slug,
+        categoryPosition: cat.position,
       };
-    });
+    })
+    // Order by category position (matching the admin Categories order), keeping
+    // painting order within each category — sort is stable. This drives both the
+    // portfolio filter tabs and the "All" category cards.
+    .sort((a, b) => a.categoryPosition - b.categoryPosition);
 }
 
 export async function getFeaturedSlides() {

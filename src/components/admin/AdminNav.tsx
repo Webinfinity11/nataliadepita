@@ -8,6 +8,8 @@ const NAV: [string, string][] = [
   ["Dashboard", "/admin"],
   ["Categories", "/admin/categories"],
   ["Paintings", "/admin/paintings"],
+  ["Photogallery", "/admin/photogallery"],
+  ["Videos", "/admin/videos"],
   ["Featured", "/admin/featured"],
   ["Blog", "/admin/blog"],
   ["Settings", "/admin/settings"],

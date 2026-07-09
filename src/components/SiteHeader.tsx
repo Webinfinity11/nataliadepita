@@ -5,6 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 type Cat = { name: string; slug: string };
+type DropItem = { name: string; href: string };
+
+const MEDIA_ITEMS: DropItem[] = [
+  { name: "Photogallery", href: "/photogallery" },
+  { name: "Videos", href: "/videos" },
+];
 
 const CHEVRON = (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -18,6 +24,11 @@ export default function SiteHeader({ categories }: { categories: Cat[] }) {
   const catSlugs = new Set(categories.map((c) => c.slug));
   const firstSeg = "/" + (pathname.split("/")[1] ?? "");
 
+  const portfolioItems: DropItem[] = categories.map((c) => ({
+    name: c.name,
+    href: `/${c.slug}`,
+  }));
+
   const isActive = (key: string) => {
     switch (key) {
       case "Home":
@@ -26,6 +37,10 @@ export default function SiteHeader({ categories }: { categories: Cat[] }) {
         return pathname.startsWith("/about");
       case "Portfolio":
         return pathname === "/portfolio" || catSlugs.has(firstSeg.slice(1));
+      case "Media":
+        return (
+          pathname.startsWith("/photogallery") || pathname.startsWith("/videos")
+        );
       case "News":
         return pathname.startsWith("/blog");
       case "Contact":
@@ -35,10 +50,11 @@ export default function SiteHeader({ categories }: { categories: Cat[] }) {
     }
   };
 
-  const NAV: { label: string; href: string }[] = [
+  const NAV: { label: string; href: string; items?: DropItem[] }[] = [
     { label: "Home", href: "/" },
     { label: "About", href: "/about" },
-    { label: "Portfolio", href: "/portfolio" },
+    { label: "Portfolio", href: "/portfolio", items: portfolioItems },
+    { label: "Media", href: "/photogallery", items: MEDIA_ITEMS },
     { label: "News", href: "/blog" },
     { label: "Contact", href: "/contact" },
   ];
@@ -46,22 +62,24 @@ export default function SiteHeader({ categories }: { categories: Cat[] }) {
   return (
     <header className="sticky top-0 z-30 border-b border-ink-200 bg-ink-50/85 backdrop-blur-sm">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-7 lg:px-14">
-        <Link
-          href="/"
-          className="font-display text-[26px] leading-none tracking-tight text-ink-900 sm:text-[32px]"
-        >
-          Natalia&nbsp;de&nbsp;Pita
+        <Link href="/" className="flex items-center gap-3 text-ink-900">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="" className="h-11 w-auto sm:h-12" />
+          <span className="font-display text-[26px] leading-none tracking-tight sm:text-[32px]">
+            Natalia&nbsp;de&nbsp;Pita
+          </span>
         </Link>
 
         {/* desktop nav */}
         <nav className="hidden items-center gap-9 lg:flex xl:gap-12">
           {NAV.map((l) =>
-            l.label === "Portfolio" ? (
-              <PortfolioDropdown
+            l.items ? (
+              <NavDropdown
                 key={l.label}
+                label={l.label}
                 href={l.href}
-                categories={categories}
-                active={isActive("Portfolio")}
+                items={l.items}
+                active={isActive(l.label)}
               />
             ) : (
               <Link
@@ -111,17 +129,16 @@ export default function SiteHeader({ categories }: { categories: Cat[] }) {
               >
                 {l.label}
               </Link>
-              {l.label === "Portfolio" &&
-                categories.map((cat) => (
-                  <Link
-                    key={cat.slug}
-                    href={`/${cat.slug}`}
-                    onClick={() => setOpen(false)}
-                    className="border-b border-ink-100 bg-ink-100 px-10 py-2.5 text-xs text-ink-500 hover:text-ink-800"
-                  >
-                    {cat.name}
-                  </Link>
-                ))}
+              {l.items?.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="border-b border-ink-100 bg-ink-100 px-10 py-2.5 text-xs text-ink-500 hover:text-ink-800"
+                >
+                  {item.name}
+                </Link>
+              ))}
             </React.Fragment>
           ))}
         </nav>
@@ -130,13 +147,15 @@ export default function SiteHeader({ categories }: { categories: Cat[] }) {
   );
 }
 
-function PortfolioDropdown({
+function NavDropdown({
+  label,
   href,
-  categories,
+  items,
   active,
 }: {
+  label: string;
   href: string;
-  categories: Cat[];
+  items: DropItem[];
   active: boolean;
 }) {
   const [hover, setHover] = useState(false);
@@ -152,7 +171,7 @@ function PortfolioDropdown({
           active ? "underline decoration-1 underline-offset-[7px]" : ""
         }`}
       >
-        Portfolio
+        {label}
         <span className={`transition-transform duration-200 ${hover ? "rotate-180" : ""}`}>
           {CHEVRON}
         </span>
@@ -168,15 +187,15 @@ function PortfolioDropdown({
         className="absolute left-1/2 top-full z-10 -translate-x-1/2 pt-3"
       >
         <div className="min-w-[180px] overflow-hidden rounded-card border border-ink-200 bg-ink-50 shadow-pop">
-          {categories.map((cat, i) => (
+          {items.map((item, i) => (
             <Link
-              key={cat.slug}
-              href={`/${cat.slug}`}
+              key={item.href}
+              href={item.href}
               className={`block px-5 py-2.5 text-[12.5px] tracking-wide text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900${
-                i < categories.length - 1 ? " border-b border-ink-100" : ""
+                i < items.length - 1 ? " border-b border-ink-100" : ""
               }`}
             >
-              {cat.name}
+              {item.name}
             </Link>
           ))}
         </div>

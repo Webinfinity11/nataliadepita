@@ -1,7 +1,7 @@
 import { asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { categories, paintings } from "@/db/schema";
-import { createCategory, updateCategory } from "./actions";
+import { createCategory, updateCategory, moveCategory } from "./actions";
 import { DeleteCategoryButton } from "./DeleteCategoryButton";
 
 export default async function CategoriesPage() {
@@ -52,6 +52,30 @@ export default async function CategoriesPage() {
               i > 0 ? "border-t border-ink-100" : ""
             }`}
           >
+            <div className="flex shrink-0 flex-col">
+              <form action={moveCategory}>
+                <input type="hidden" name="id" value={c.id} />
+                <input type="hidden" name="dir" value="up" />
+                <button
+                  disabled={i === 0}
+                  className="px-1 leading-none text-ink-500 hover:text-ink-900 disabled:opacity-25 disabled:hover:text-ink-500"
+                  title="Move up"
+                >
+                  ↑
+                </button>
+              </form>
+              <form action={moveCategory}>
+                <input type="hidden" name="id" value={c.id} />
+                <input type="hidden" name="dir" value="down" />
+                <button
+                  disabled={i === rows.length - 1}
+                  className="px-1 leading-none text-ink-500 hover:text-ink-900 disabled:opacity-25 disabled:hover:text-ink-500"
+                  title="Move down"
+                >
+                  ↓
+                </button>
+              </form>
+            </div>
             <form action={updateCategory} className="flex flex-1 flex-wrap items-center gap-3">
               <input type="hidden" name="id" value={c.id} />
               <input name="name" defaultValue={c.name} className="min-w-[150px]" />

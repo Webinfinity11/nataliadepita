@@ -1,6 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { categories, paintings } from "@/db/schema";
 import { requireAdmin } from "@/lib/session";
@@ -57,14 +57,31 @@ export async function deleteCategory(formData: FormData) {
   revalidatePath("/");
 }
 
-export async function reorderCategory(formData: FormData) {
+export async function moveCategory(formData: FormData) {
   await requireAdmin();
   const id = Number(formData.get("id"));
-  const position = Number(formData.get("position"));
-  await db
-    .update(categories)
-    .set({ position })
-    .where(eq(categories.id, id));
+  const dir = formData.get("dir") === "up" ? -1 : 1;
+
+  // Load in the same order the page/front-end display them.
+  const rows = await db
+    .select({ id: categories.id })
+    .from(categories)
+    .orderBy(asc(categories.position), asc(categories.name));
+
+  const idx = rows.findIndex((r) => r.id === id);
+  const swap = idx + dir;
+  if (idx === -1 || swap < 0 || swap >= rows.length) return; // at an edge → no-op
+
+  [rows[idx], rows[swap]] = [rows[swap], rows[idx]];
+
+  // Re-number every row 0..n so ordering is stable even when positions were
+  // all 0 (the pre-existing default). One update per row keeps this simple.
+  await Promise.all(
+    rows.map((r, i) =>
+      db.update(categories).set({ position: i }).where(eq(categories.id, r.id)),
+    ),
+  );
+
   revalidatePath("/admin/categories");
   revalidatePath("/");
 }

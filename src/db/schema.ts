@@ -102,9 +102,30 @@ export const adminUsers = pgTable("admin_users", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Media → Photogallery: standalone uploaded photos (not tied to a painting).
+export const galleryPhotos = pgTable("gallery_photos", {
+  id: serial("id").primaryKey(),
+  url: text("url").notNull(),
+  width: integer("width"),
+  height: integer("height"),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Media → Videos: embedded YouTube/Vimeo links.
+export const videos = pgTable("videos", {
+  id: serial("id").primaryKey(),
+  url: text("url").notNull(),
+  title: text("title"),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export type Category = typeof categories.$inferSelect;
 export type Painting = typeof paintings.$inferSelect;
 export type Photo = typeof photos.$inferSelect;
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type SiteSettings = typeof siteSettings.$inferSelect;
 export type ContactMessage = typeof contactMessages.$inferSelect;
+export type GalleryPhoto = typeof galleryPhotos.$inferSelect;
+export type Video = typeof videos.$inferSelect;

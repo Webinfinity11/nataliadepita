@@ -39,6 +39,16 @@ export default async function ContactPage() {
                 <span className="text-ink-800">{s.phone}</span>
               </DetailRow>
             )}
+            <DetailRow label="Website">
+              <a
+                href="https://ribirabo.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-ink-800 underline decoration-ink-300 underline-offset-4 transition-colors hover:decoration-ink-900"
+              >
+                ribirabo.com
+              </a>
+            </DetailRow>
             {socials.length > 0 && (
               <DetailRow label="Follow">
                 <span className="flex flex-wrap gap-5 text-xs uppercase tracking-[0.22em] text-ink-600">
