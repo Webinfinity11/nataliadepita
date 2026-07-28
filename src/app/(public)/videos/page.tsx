@@ -3,9 +3,16 @@ import { parseVideo } from "@/lib/video";
 
 export default async function VideosPage() {
   const rows = await getVideos();
-  const videos = rows
-    .map((v) => ({ ...v, embed: parseVideo(v.url) }))
-    .filter((v) => v.embed);
+
+  // Some reels have been added to the admin more than once — show each only
+  // where it first appears instead of repeating it further down the page.
+  const seen = new Set<string>();
+  const videos = rows.flatMap((v) => {
+    const embed = parseVideo(v.url);
+    if (!embed || seen.has(embed.embedUrl)) return [];
+    seen.add(embed.embedUrl);
+    return [{ ...v, embed }];
+  });
 
   return (
     <main className="px-6 lg:px-12">
@@ -31,13 +38,13 @@ export default async function VideosPage() {
               <figure key={v.id}>
                 <div
                   className={`w-full overflow-hidden bg-ink-100 ${
-                    v.embed!.orientation === "portrait"
+                    v.embed.orientation === "portrait"
                       ? "mx-auto aspect-[9/16] max-w-[360px]"
                       : "aspect-video"
                   }`}
                 >
                   <iframe
-                    src={v.embed!.embedUrl}
+                    src={v.embed.embedUrl}
                     title={v.title ?? "Video"}
                     loading="lazy"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -52,7 +59,7 @@ export default async function VideosPage() {
                 )}
                 {/* Facebook refuses to embed some videos (rights, privacy) —
                     always offer the original as a way through. */}
-                {v.embed!.provider === "facebook" && (
+                {v.embed.provider === "facebook" && (
                   <a
                     href={v.url}
                     target="_blank"

@@ -5,7 +5,7 @@ export type VideoProvider = "youtube" | "vimeo" | "facebook";
 export type VideoEmbed = {
   provider: VideoProvider;
   embedUrl: string;
-  // Reels and Shorts are shot vertically; everything else plays in a 16:9 frame.
+  // Shorts are always shot vertically; everything else plays in a 16:9 frame.
   orientation: "landscape" | "portrait";
 };
 
@@ -60,12 +60,11 @@ function parseFacebook(raw: string): VideoEmbed | null {
 
   const path = url.pathname;
 
-  // /reel/123… and /share/r/xxxx are the vertical reel formats.
-  if (/^\/reel\/\d+/.test(path) || /^\/share\/r\/[\w-]+/.test(path)) {
-    return facebookEmbed(canonical(url), "portrait");
-  }
-
   const isVideo =
+    // Reels are a publishing format, not an aspect ratio — most of the ones on
+    // this page are ordinary landscape footage posted as a reel.
+    /^\/reel\/\d+/.test(path) ||
+    /^\/share\/r\/[\w-]+/.test(path) ||
     (/^\/watch\/?$/.test(path) && url.searchParams.has("v")) ||
     (/^\/video\.php\/?$/.test(path) && url.searchParams.has("v")) ||
     /^\/[\w.-]+\/videos\/(?:[\w.-]+\/)?\d+/.test(path) ||

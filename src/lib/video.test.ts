@@ -36,32 +36,27 @@ describe("parseVideo — facebook", () => {
   const plugin = (href: string) =>
     `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(href)}&show_text=false`;
 
-  it("embeds a reel as portrait", () => {
+  it("embeds a reel", () => {
     expect(parseVideo("https://www.facebook.com/reel/469372649284440")).toEqual({
       provider: "facebook",
       embedUrl: plugin("https://www.facebook.com/reel/469372649284440"),
-      orientation: "portrait",
+      orientation: "landscape",
     });
   });
 
-  it("accepts watch, page-video and video.php links as landscape", () => {
+  it("accepts reel, watch, page-video and video.php links as landscape", () => {
     for (const url of [
       "https://www.facebook.com/watch/?v=1234567890",
       "https://www.facebook.com/nataliadepita/videos/1234567890/",
       "https://www.facebook.com/video.php?v=1234567890",
       "https://www.facebook.com/share/v/AbCd1234/",
+      "https://www.facebook.com/share/r/AbCd1234/",
     ]) {
       expect(parseVideo(url)).toMatchObject({
         provider: "facebook",
         orientation: "landscape",
       });
     }
-  });
-
-  it("treats /share/r/ as a reel", () => {
-    expect(parseVideo("https://www.facebook.com/share/r/AbCd1234/")).toMatchObject({
-      orientation: "portrait",
-    });
   });
 
   it("normalises mobile and regional hosts to www", () => {
