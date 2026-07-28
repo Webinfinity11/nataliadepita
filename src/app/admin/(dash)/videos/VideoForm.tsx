@@ -16,7 +16,7 @@ export function VideoForm() {
     e.preventDefault();
     setErr(null);
     if (!isSupportedVideoUrl(url)) {
-      setErr("Enter a valid YouTube or Vimeo link.");
+      setErr("Enter a valid YouTube, Vimeo or Facebook link.");
       return;
     }
     setBusy(true);
@@ -41,7 +41,7 @@ export function VideoForm() {
         <input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="YouTube or Vimeo link"
+          placeholder="YouTube, Vimeo or Facebook link"
           className="w-full"
           required
         />

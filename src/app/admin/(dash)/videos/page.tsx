@@ -19,8 +19,8 @@ export default async function VideosAdminPage() {
           Videos
         </h1>
         <p className="mt-2 text-sm text-ink-500">
-          Paste a YouTube or Vimeo link. Videos appear on the public Videos page,
-          in this order.
+          Paste a YouTube, Vimeo or Facebook link — including Facebook reels and
+          watch links. Videos appear on the public Videos page, in this order.
         </p>
       </header>
 

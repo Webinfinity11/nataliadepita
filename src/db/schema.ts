@@ -112,7 +112,7 @@ export const galleryPhotos = pgTable("gallery_photos", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-// Media → Videos: embedded YouTube/Vimeo links.
+// Media → Videos: embedded YouTube/Vimeo/Facebook links.
 export const videos = pgTable("videos", {
   id: serial("id").primaryKey(),
   url: text("url").notNull(),

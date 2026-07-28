@@ -29,14 +29,20 @@ export default async function VideosPage() {
           <div className="grid grid-cols-1 gap-x-10 gap-y-14 lg:grid-cols-2">
             {videos.map((v) => (
               <figure key={v.id}>
-                <div className="aspect-video w-full overflow-hidden bg-ink-100">
+                <div
+                  className={`w-full overflow-hidden bg-ink-100 ${
+                    v.embed!.orientation === "portrait"
+                      ? "mx-auto aspect-[9/16] max-w-[360px]"
+                      : "aspect-video"
+                  }`}
+                >
                   <iframe
                     src={v.embed!.embedUrl}
                     title={v.title ?? "Video"}
                     loading="lazy"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
-                    className="h-full w-full"
+                    className="h-full w-full border-0"
                   />
                 </div>
                 {v.title && (
