@@ -3,15 +3,9 @@ import { parseVideo } from "@/lib/video";
 
 export default async function VideosPage() {
   const rows = await getVideos();
-
-  // Some reels have been added to the admin more than once — show each only
-  // where it first appears instead of repeating it further down the page.
-  const seen = new Set<string>();
   const videos = rows.flatMap((v) => {
     const embed = parseVideo(v.url);
-    if (!embed || seen.has(embed.embedUrl)) return [];
-    seen.add(embed.embedUrl);
-    return [{ ...v, embed }];
+    return embed ? [{ ...v, embed }] : [];
   });
 
   return (
