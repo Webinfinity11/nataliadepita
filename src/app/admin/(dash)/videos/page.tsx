@@ -21,6 +21,9 @@ export default async function VideosAdminPage() {
         <p className="mt-2 text-sm text-ink-500">
           Paste a YouTube, Vimeo or Facebook link — including Facebook reels and
           watch links. Videos appear on the public Videos page, in this order.
+          Facebook blocks embedding for some videos (private ones, or ones using
+          someone else&rsquo;s music or footage); those still show a link to the
+          original.
         </p>
       </header>
 
