@@ -9,7 +9,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center">
           <h1 className="font-display text-3xl tracking-tight text-ink-900">
-            Natalia de Pita
+            Natalia de Pita Amirejibi
           </h1>
           <p className="mt-1 text-xs uppercase tracking-[0.28em] text-ink-400">
             Studio Admin
@@ -22,9 +22,18 @@ export default function LoginPage() {
         >
           <label className="block">
             <span className="mb-1.5 block text-xs uppercase tracking-[0.14em] text-ink-500">
-              Email
+              Login
             </span>
-            <input name="email" type="email" required className="w-full" />
+            {/* a plain username, not necessarily an email address */}
+            <input
+              name="email"
+              type="text"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              required
+              className="w-full"
+            />
           </label>
           <label className="block">
             <span className="mb-1.5 block text-xs uppercase tracking-[0.14em] text-ink-500">

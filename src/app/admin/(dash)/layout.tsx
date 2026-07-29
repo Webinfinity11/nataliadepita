@@ -15,7 +15,7 @@ export default async function AdminLayout({
         <div className="flex items-center justify-between lg:block">
           <Link href="/admin" className="block">
             <span className="font-display text-xl tracking-tight text-ink-900">
-              Natalia de Pita
+              Natalia de Pita Amirejibi
             </span>
             <span className="mt-0.5 block text-[11px] uppercase tracking-[0.28em] text-ink-400">
               Studio Admin

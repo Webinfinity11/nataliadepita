@@ -76,7 +76,7 @@ export default async function ContactPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={featureImage}
-                alt="Artwork by Natalia de Pita"
+                alt="Artwork by Natalia de Pita Amirejibi"
                 className="h-auto w-full object-cover"
               />
             </div>

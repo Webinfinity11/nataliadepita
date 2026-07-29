@@ -7,6 +7,8 @@ type Work = {
   title: string;
   slug: string;
   coverPhotoUrl: string;
+  coverWidth: number | null;
+  coverHeight: number | null;
   categoryName: string;
   categorySlug: string;
 };
@@ -118,15 +120,23 @@ export default function PortfolioGallery({
               <p className="mt-2 text-sm text-ink-500">Please check back soon.</p>
             </div>
           ) : (
-            // a single category selected → its gallery of works
-            <div className="grid grid-cols-1 gap-x-10 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+            // a single category selected → its gallery of works. Masonry
+            // columns: each work keeps its own shape rather than being cropped.
+            <div className="columns-1 gap-x-10 sm:columns-2 lg:columns-3">
               {shown.map((w) => (
                 <Link
                   key={`${w.categorySlug}/${w.slug}`}
                   href={`/${w.categorySlug}/${w.slug}`}
-                  className="group block text-left"
+                  className="group mb-16 block break-inside-avoid text-left"
                 >
-                  <div className="aspect-[4/5] w-full overflow-hidden bg-ink-100">
+                  <div
+                    className="w-full overflow-hidden bg-ink-100"
+                    style={
+                      w.coverWidth && w.coverHeight
+                        ? { aspectRatio: `${w.coverWidth} / ${w.coverHeight}` }
+                        : { aspectRatio: "4 / 5" }
+                    }
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={w.coverPhotoUrl}

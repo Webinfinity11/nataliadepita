@@ -6,7 +6,11 @@ const USEFUL_LINKS: { label: string; url: string }[] = [
     label: "Presidential Administration of Georgia",
     url: "https://en.wikipedia.org/wiki/Presidential_Administration_of_Georgia",
   },
-  { label: "Piazza Batumi", url: "http://gobatumi.com/en/catalog/686-piatsas-moedani" },
+  {
+    label: "Ceremonial Palace of Georgia",
+    url: "https://en.wikipedia.org/wiki/Ceremonial_Palace_of_Georgia",
+  },
+  { label: "Piazza Batumi", url: "https://en.wikipedia.org/wiki/Batumi_Piazza" },
   { label: "Exhibition ATLANTIS ’11", url: "http://geoair.ge/ka/node/205" },
   { label: "Art Guild — Natali de Pita", url: "http://artguild.club/natali_de_pita.html" },
   { label: "Listed at AKOUN.COM", url: "https://www.akoun.com/SEARCH?ART=Natali%20De%20Pita" },
@@ -39,7 +43,7 @@ export default async function AboutPage() {
         <header className="border-b border-ink-200 pb-8 pt-12 lg:pb-10 lg:pt-16">
           <p className="text-xs uppercase tracking-[0.3em] text-ink-500">About</p>
           <h1 className="mt-6 font-display text-5xl leading-[1.04] tracking-tight text-ink-900 sm:text-6xl lg:text-7xl">
-            Natalia&nbsp;de&nbsp;Pita
+            Natalia&nbsp;de&nbsp;Pita Amirejibi
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-600">
             Painter and monumental mosaicist, born in Tbilisi. Working across

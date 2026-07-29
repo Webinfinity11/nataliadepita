@@ -65,8 +65,8 @@ export default function SiteHeader({ categories }: { categories: Cat[] }) {
         <Link href="/" className="flex items-center gap-3 text-ink-900">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="" className="h-11 w-auto sm:h-12" />
-          <span className="font-display text-[26px] leading-none tracking-tight sm:text-[32px]">
-            Natalia&nbsp;de&nbsp;Pita
+          <span className="font-display text-[22px] leading-tight tracking-tight sm:text-[28px] lg:text-[32px]">
+            Natalia&nbsp;de&nbsp;Pita Amirejibi
           </span>
         </Link>
 

@@ -1,4 +1,4 @@
-import { asc, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   categories,
@@ -81,8 +81,23 @@ export async function getAllWorks() {
     .orderBy(asc(categories.position), asc(categories.name));
   const catById = new Map(cats.map((c) => [c.id, c]));
   const works = await db
-    .select()
+    .select({
+      title: paintings.title,
+      slug: paintings.slug,
+      categoryId: paintings.categoryId,
+      coverPhotoUrl: paintings.coverPhotoUrl,
+      // the cover's own dimensions, so a work can be shown in its real shape
+      coverWidth: photos.width,
+      coverHeight: photos.height,
+    })
     .from(paintings)
+    .leftJoin(
+      photos,
+      and(
+        eq(photos.paintingId, paintings.id),
+        eq(photos.url, paintings.coverPhotoUrl),
+      ),
+    )
     .orderBy(asc(paintings.position), asc(paintings.title));
   return works
     .filter((p) => !!p.coverPhotoUrl && catById.has(p.categoryId))
@@ -92,6 +107,8 @@ export async function getAllWorks() {
         title: p.title,
         slug: p.slug,
         coverPhotoUrl: p.coverPhotoUrl!,
+        coverWidth: p.coverWidth,
+        coverHeight: p.coverHeight,
         categoryName: cat.name,
         categorySlug: cat.slug,
         categoryPosition: cat.position,

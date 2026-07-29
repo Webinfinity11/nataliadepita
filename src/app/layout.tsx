@@ -16,8 +16,8 @@ const instrument = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Natalia de Pita — Artist",
-  description: "Paintings and mosaics by Natalia Amirejibi de Pita.",
+  title: "Natalia de Pita Amirejibi — Artist",
+  description: "Paintings and mosaics by Natalia de Pita Amirejibi.",
 };
 
 export default function RootLayout({

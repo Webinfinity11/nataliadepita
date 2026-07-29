@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { categories, paintings } from "@/db/schema";
+import { categories, paintings, photos } from "@/db/schema";
 import { PaintingGrid } from "@/components/PaintingGrid";
 
 export default async function CategoryPage({
@@ -15,9 +15,28 @@ export default async function CategoryPage({
     .from(categories)
     .where(eq(categories.slug, category));
   if (!cat) notFound();
+  // the cover's own dimensions come along, so the grid can keep each shape
   const rows = await db
-    .select()
+    .select({
+      id: paintings.id,
+      title: paintings.title,
+      slug: paintings.slug,
+      description: paintings.description,
+      categoryId: paintings.categoryId,
+      coverPhotoUrl: paintings.coverPhotoUrl,
+      position: paintings.position,
+      createdAt: paintings.createdAt,
+      coverWidth: photos.width,
+      coverHeight: photos.height,
+    })
     .from(paintings)
+    .leftJoin(
+      photos,
+      and(
+        eq(photos.paintingId, paintings.id),
+        eq(photos.url, paintings.coverPhotoUrl),
+      ),
+    )
     .where(eq(paintings.categoryId, cat.id))
     .orderBy(asc(paintings.position), asc(paintings.title));
   return (
