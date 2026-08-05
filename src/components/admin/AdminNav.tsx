@@ -11,7 +11,6 @@ const NAV: [string, string][] = [
   ["Photogallery", "/admin/photogallery"],
   ["Videos", "/admin/videos"],
   ["Featured", "/admin/featured"],
-  ["Blog", "/admin/blog"],
   ["Settings", "/admin/settings"],
   ["Messages", "/admin/messages"],
 ];

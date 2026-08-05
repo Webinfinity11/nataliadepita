@@ -5,7 +5,6 @@ import {
   paintings,
   categories,
   featured,
-  blogPosts,
   contactMessages,
 } from "@/db/schema";
 
@@ -16,13 +15,11 @@ export default async function Dashboard() {
     [{ n: nPaintings }],
     [{ n: nCategories }],
     [{ n: nFeatured }],
-    [{ n: nBlog }],
     [{ n: nUnread }],
   ] = await Promise.all([
     db.select({ n: N }).from(paintings),
     db.select({ n: N }).from(categories),
     db.select({ n: N }).from(featured),
-    db.select({ n: N }).from(blogPosts),
     db.select({ n: N }).from(contactMessages).where(eq(contactMessages.read, false)),
   ]);
 
@@ -30,7 +27,6 @@ export default async function Dashboard() {
     { label: "Paintings", value: nPaintings, href: "/admin/paintings" },
     { label: "Categories", value: nCategories, href: "/admin/categories" },
     { label: "Featured", value: nFeatured, href: "/admin/featured" },
-    { label: "Blog posts", value: nBlog, href: "/admin/blog" },
     { label: "Unread messages", value: nUnread, href: "/admin/messages" },
   ];
 
@@ -38,7 +34,6 @@ export default async function Dashboard() {
     { label: "Add a painting", href: "/admin/paintings", desc: "Upload new work and photos" },
     { label: "Edit categories", href: "/admin/categories", desc: "Collections shown in the portfolio" },
     { label: "Homepage slides", href: "/admin/featured", desc: "Choose the featured slider images" },
-    { label: "Write a post", href: "/admin/blog", desc: "Publish news and announcements" },
     { label: "Site settings", href: "/admin/settings", desc: "About text, contact, social links" },
   ];
 

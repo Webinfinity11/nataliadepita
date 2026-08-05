@@ -41,8 +41,8 @@ export default function SiteHeader({ categories }: { categories: Cat[] }) {
         return (
           pathname.startsWith("/photogallery") || pathname.startsWith("/videos")
         );
-      case "News":
-        return pathname.startsWith("/blog");
+      case "Ribirabo Foundation":
+        return pathname.startsWith("/ribirabo-foundation");
       case "Contact":
         return pathname.startsWith("/contact");
       default:
@@ -55,7 +55,7 @@ export default function SiteHeader({ categories }: { categories: Cat[] }) {
     { label: "About", href: "/about" },
     { label: "Portfolio", href: "/portfolio", items: portfolioItems },
     { label: "Media", href: "/photogallery", items: MEDIA_ITEMS },
-    { label: "News", href: "/blog" },
+    { label: "Ribirabo Foundation", href: "/ribirabo-foundation" },
     { label: "Contact", href: "/contact" },
   ];
 
