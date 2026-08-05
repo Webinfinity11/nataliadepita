@@ -1,10 +1,11 @@
 import { getSettings } from "@/lib/queries";
 import { RichText } from "@/components/RichText";
 
-const USEFUL_LINKS: { label: string; url: string }[] = [
+const USEFUL_LINKS: { label: string; url: string; download?: boolean }[] = [
   {
-    label: "Presidential Administration of Georgia",
-    url: "https://en.wikipedia.org/wiki/Presidential_Administration_of_Georgia",
+    label: "Download Artist CV (PDF)",
+    url: "/natalia-de-pita-cv.pdf",
+    download: true,
   },
   {
     label: "Ceremonial Palace of Georgia",
@@ -58,7 +59,8 @@ export default async function AboutPage() {
               Biography
             </h2>
             <p className="mt-3 text-sm italic text-ink-500">
-              by Lawrence Scott Sheets
+              by Lawrence Scott Sheets. Revised and updated for the artist’s
+              official website
             </p>
           </aside>
 
@@ -79,8 +81,11 @@ export default async function AboutPage() {
                   <li key={l.url}>
                     <a
                       href={l.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      // The CV is ours to hand over, not somewhere to send the
+                      // reader — it saves rather than opening a tab.
+                      {...(l.download
+                        ? { download: "" }
+                        : { target: "_blank", rel: "noopener noreferrer" })}
                       className="group flex items-start gap-2 py-2 text-[15px] text-ink-700 transition-colors hover:text-ink-900"
                     >
                       <span className="underline decoration-ink-300 underline-offset-4 transition-colors group-hover:decoration-ink-900">
