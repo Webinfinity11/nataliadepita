@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { paintings, photos, categories } from "@/db/schema";
+import { paintings, photos, categories, paintingVideos } from "@/db/schema";
 import { PaintingForm } from "./PaintingForm";
 
 export default async function EditPainting({
@@ -22,5 +22,17 @@ export default async function EditPainting({
     .from(photos)
     .where(eq(photos.paintingId, pid))
     .orderBy(asc(photos.position));
-  return <PaintingForm painting={painting} categories={cats} photos={pics} />;
+  const clips = await db
+    .select()
+    .from(paintingVideos)
+    .where(eq(paintingVideos.paintingId, pid))
+    .orderBy(asc(paintingVideos.position));
+  return (
+    <PaintingForm
+      painting={painting}
+      categories={cats}
+      photos={pics}
+      videos={clips}
+    />
+  );
 }

@@ -2,8 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { and, asc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { categories, paintings, photos } from "@/db/schema";
+import { categories, paintings, photos, paintingVideos } from "@/db/schema";
 import { Lightbox } from "@/components/Lightbox";
+import { VideoEmbed } from "@/components/VideoEmbed";
+import { parseVideo } from "@/lib/video";
 
 export default async function PaintingPage({
   params,
@@ -32,6 +34,15 @@ export default async function PaintingPage({
   pics.sort((a, b) =>
     a.url === p.coverPhotoUrl ? -1 : b.url === p.coverPhotoUrl ? 1 : 0,
   );
+  const clips = await db
+    .select()
+    .from(paintingVideos)
+    .where(eq(paintingVideos.paintingId, p.id))
+    .orderBy(asc(paintingVideos.position));
+  const videos = clips.flatMap((v) => {
+    const embed = parseVideo(v.url);
+    return embed ? [{ ...v, embed }] : [];
+  });
   return (
     <article className="mx-auto max-w-4xl px-6 py-14 lg:py-20">
       <Link
@@ -53,6 +64,32 @@ export default async function PaintingPage({
         <p className="mt-6 max-w-2xl whitespace-pre-wrap text-lg leading-relaxed text-ink-700">
           {p.description}
         </p>
+      )}
+      {videos.length > 0 && (
+        <section className="mt-14 space-y-12">
+          {videos.map((v) => (
+            <figure key={v.id}>
+              <VideoEmbed embed={v.embed} title={v.title} />
+              {v.title && (
+                <figcaption className="mt-4 font-display text-2xl leading-tight tracking-tight text-ink-900">
+                  {v.title}
+                </figcaption>
+              )}
+              {/* Facebook refuses to embed some videos (rights, privacy) —
+                  always offer the original as a way through. */}
+              {v.embed.provider === "facebook" && (
+                <a
+                  href={v.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-block text-xs uppercase tracking-[0.18em] text-ink-500 underline decoration-ink-200 underline-offset-4 transition-colors hover:text-ink-900"
+                >
+                  Watch on Facebook
+                </a>
+              )}
+            </figure>
+          ))}
+        </section>
       )}
     </article>
   );

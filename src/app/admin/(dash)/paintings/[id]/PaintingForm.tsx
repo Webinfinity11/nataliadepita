@@ -2,8 +2,15 @@
 import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
-import type { Painting, Photo, Category } from "@/db/schema";
+import type {
+  Painting,
+  Photo,
+  Category,
+  PaintingVideo,
+} from "@/db/schema";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { VideoEmbed } from "@/components/VideoEmbed";
+import { parseVideo } from "@/lib/video";
 import {
   updatePainting,
   deletePainting,
@@ -11,16 +18,21 @@ import {
   reorderPhotos,
   removePhoto,
   setCoverPhoto,
+  addPaintingVideo,
+  reorderPaintingVideos,
+  removePaintingVideo,
 } from "../actions";
 
 export function PaintingForm({
   painting,
   categories,
   photos,
+  videos,
 }: {
   painting: Painting;
   categories: Category[];
   photos: Photo[];
+  videos: PaintingVideo[];
 }) {
   const router = useRouter();
   const [list, setList] = useState<Photo[]>(photos);
@@ -249,6 +261,9 @@ export function PaintingForm({
         )}
       </section>
 
+      {/* videos */}
+      <VideoSection paintingId={painting.id} videos={videos} />
+
       {/* danger */}
       <form action={deletePainting} className="border-t border-ink-200 pt-6">
         <input type="hidden" name="id" value={painting.id} />
@@ -257,6 +272,172 @@ export function PaintingForm({
         </button>
       </form>
     </div>
+  );
+}
+
+const PROVIDER_LABEL = {
+  youtube: "YouTube",
+  vimeo: "Vimeo",
+  facebook: "Facebook",
+} as const;
+
+function VideoSection({
+  paintingId,
+  videos,
+}: {
+  paintingId: number;
+  videos: PaintingVideo[];
+}) {
+  const router = useRouter();
+  const [url, setUrl] = useState("");
+  const [title, setTitle] = useState("");
+  const [err, setErr] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  // Recognise the provider as the link is pasted, so the editor sees it took
+  // before pressing Add — there is no provider to choose by hand.
+  const detected = url.trim() ? parseVideo(url) : null;
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault();
+    setErr(null);
+    if (!detected) {
+      setErr("Enter a valid YouTube, Vimeo or Facebook link.");
+      return;
+    }
+    setBusy(true);
+    try {
+      await addPaintingVideo(paintingId, url, title);
+      setUrl("");
+      setTitle("");
+      router.refresh();
+    } catch {
+      setErr("Could not add the video. Check the link and try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function move(i: number, dir: -1 | 1) {
+    const j = i + dir;
+    if (j < 0 || j >= videos.length) return;
+    const next = [...videos];
+    [next[i], next[j]] = [next[j], next[i]];
+    await reorderPaintingVideos(
+      paintingId,
+      next.map((v) => v.id),
+    );
+    router.refresh();
+  }
+
+  async function remove(id: number) {
+    await removePaintingVideo(id, paintingId);
+    router.refresh();
+  }
+
+  return (
+    <section className="space-y-4">
+      <div>
+        <h2 className="font-display text-2xl tracking-tight text-ink-900">
+          Videos{" "}
+          <span className="text-base font-normal text-ink-400">
+            ({videos.length})
+          </span>
+        </h2>
+        <p className="mt-1 max-w-md text-sm text-ink-500">
+          Paste a YouTube, Vimeo or Facebook link — the type is recognised
+          automatically.
+        </p>
+      </div>
+
+      <form
+        onSubmit={add}
+        className="flex max-w-xl flex-wrap items-start gap-3 rounded-[8px] border border-ink-200 bg-white p-4"
+      >
+        <div className="min-w-[220px] flex-1">
+          <input
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="Paste a video link"
+            className="w-full"
+            required
+          />
+          {detected && (
+            <p className="mt-1.5 text-xs text-ink-500">
+              Recognised as{" "}
+              <span className="font-medium text-ink-900">
+                {PROVIDER_LABEL[detected.provider]}
+              </span>
+            </p>
+          )}
+          {err && <p className="mt-1.5 text-xs text-danger-600">{err}</p>}
+        </div>
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Caption (optional)"
+          className="min-w-[160px] flex-1"
+        />
+        <button
+          disabled={busy}
+          className="bg-ink-900 px-4 py-2 text-sm font-medium text-ink-50 disabled:opacity-60"
+        >
+          {busy ? "Adding…" : "Add"}
+        </button>
+      </form>
+
+      {videos.length > 0 && (
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {videos.map((v, i) => {
+            const embed = parseVideo(v.url);
+            return (
+              <li
+                key={v.id}
+                className="overflow-hidden rounded-[8px] border border-ink-200 bg-white"
+              >
+                {embed ? (
+                  <VideoEmbed embed={embed} title={v.title} />
+                ) : (
+                  <p className="px-3 py-8 text-center text-xs text-danger-600">
+                    This link can no longer be played.
+                  </p>
+                )}
+                <div className="space-y-2 px-3 py-2">
+                  <p className="truncate text-sm text-ink-700">
+                    {v.title || (embed ? PROVIDER_LABEL[embed.provider] : v.url)}
+                  </p>
+                  <div className="flex items-center justify-between gap-1">
+                    <div className="flex items-center gap-1">
+                      <IconBtn
+                        title="Move earlier"
+                        disabled={i === 0}
+                        onClick={() => move(i, -1)}
+                      >
+                        ←
+                      </IconBtn>
+                      <IconBtn
+                        title="Move later"
+                        disabled={i === videos.length - 1}
+                        onClick={() => move(i, 1)}
+                      >
+                        →
+                      </IconBtn>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => remove(v.id)}
+                      className="rounded-[5px] px-2 py-1 text-xs text-danger-600 transition-colors hover:bg-danger-50 hover:text-danger-700"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
   );
 }
 

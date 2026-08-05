@@ -1,5 +1,6 @@
 import { getVideos } from "@/lib/queries";
 import { parseVideo } from "@/lib/video";
+import { VideoEmbed } from "@/components/VideoEmbed";
 
 export default async function VideosPage() {
   const rows = await getVideos();
@@ -30,22 +31,7 @@ export default async function VideosPage() {
           <div className="grid grid-cols-1 gap-x-10 gap-y-14 lg:grid-cols-2">
             {videos.map((v) => (
               <figure key={v.id}>
-                <div
-                  className={`w-full overflow-hidden bg-ink-100 ${
-                    v.embed.orientation === "portrait"
-                      ? "mx-auto aspect-[9/16] max-w-[360px]"
-                      : "aspect-video"
-                  }`}
-                >
-                  <iframe
-                    src={v.embed.embedUrl}
-                    title={v.title ?? "Video"}
-                    loading="lazy"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    className="h-full w-full border-0"
-                  />
-                </div>
+                <VideoEmbed embed={v.embed} title={v.title} />
                 {v.title && (
                   <figcaption className="mt-4 font-display text-2xl leading-tight tracking-tight text-ink-900">
                     {v.title}

@@ -48,6 +48,20 @@ export const photos = pgTable("photos", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Videos attached to a single work — the artist pastes one link and the
+// provider is worked out from the URL (see lib/video.ts). Separate from the
+// site-wide `videos` table so the Media page stays curated by hand.
+export const paintingVideos = pgTable("painting_videos", {
+  id: serial("id").primaryKey(),
+  paintingId: integer("painting_id")
+    .notNull()
+    .references(() => paintings.id, { onDelete: "cascade" }),
+  url: text("url").notNull(),
+  title: text("title"),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const featured = pgTable("featured", {
   id: serial("id").primaryKey(),
   // A slide is either a directly-uploaded image (imageUrl) or, for legacy
@@ -124,6 +138,7 @@ export const videos = pgTable("videos", {
 export type Category = typeof categories.$inferSelect;
 export type Painting = typeof paintings.$inferSelect;
 export type Photo = typeof photos.$inferSelect;
+export type PaintingVideo = typeof paintingVideos.$inferSelect;
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type SiteSettings = typeof siteSettings.$inferSelect;
 export type ContactMessage = typeof contactMessages.$inferSelect;

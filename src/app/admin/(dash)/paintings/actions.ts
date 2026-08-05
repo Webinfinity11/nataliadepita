@@ -3,10 +3,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { paintings, photos } from "@/db/schema";
+import { paintings, photos, paintingVideos } from "@/db/schema";
 import { requireAdmin } from "@/lib/session";
 import { paintingInput } from "@/lib/validation";
 import { slugify, uniqueSlug } from "@/lib/slug";
+import { isSupportedVideoUrl } from "@/lib/video";
 
 async function slugTaken(categoryId: number, exceptId?: number) {
   const rows = await db
@@ -181,6 +182,52 @@ export async function setCoverPhoto(formData: FormData) {
     .update(paintings)
     .set({ coverPhotoUrl: url })
     .where(eq(paintings.id, paintingId));
+  revalidatePath(`/admin/paintings/${paintingId}`);
+  revalidatePath("/");
+}
+
+// One paste field for every provider: the URL alone says whether it's YouTube,
+// Vimeo or Facebook, so there is nothing for the editor to pick.
+export async function addPaintingVideo(
+  paintingId: number,
+  url: string,
+  title: string,
+) {
+  await requireAdmin();
+  const u = url.trim();
+  if (!isSupportedVideoUrl(u)) throw new Error("Unsupported video URL");
+  const existing = await db
+    .select({ id: paintingVideos.id })
+    .from(paintingVideos)
+    .where(eq(paintingVideos.paintingId, paintingId));
+  await db.insert(paintingVideos).values({
+    paintingId,
+    url: u,
+    title: title.trim() || null,
+    position: existing.length,
+  });
+  revalidatePath(`/admin/paintings/${paintingId}`);
+  revalidatePath("/");
+}
+
+export async function reorderPaintingVideos(
+  paintingId: number,
+  orderedIds: number[],
+) {
+  await requireAdmin();
+  for (let i = 0; i < orderedIds.length; i++) {
+    await db
+      .update(paintingVideos)
+      .set({ position: i })
+      .where(eq(paintingVideos.id, orderedIds[i]));
+  }
+  revalidatePath(`/admin/paintings/${paintingId}`);
+  revalidatePath("/");
+}
+
+export async function removePaintingVideo(videoId: number, paintingId: number) {
+  await requireAdmin();
+  await db.delete(paintingVideos).where(eq(paintingVideos.id, videoId));
   revalidatePath(`/admin/paintings/${paintingId}`);
   revalidatePath("/");
 }
