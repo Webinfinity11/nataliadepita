@@ -36,29 +36,50 @@ export async function createPainting(formData: FormData) {
   redirect(`/admin/paintings/${row.id}`);
 }
 
-export async function updatePainting(formData: FormData) {
+// Result of the details form. A rejected save reports back to the form instead
+// of throwing, so a typo (or an over-long field) never blanks the whole page
+// and loses what the editor just typed.
+export type SaveState = { ok: boolean; error?: string } | null;
+
+export async function updatePainting(
+  _prev: SaveState,
+  formData: FormData,
+): Promise<SaveState> {
   await requireAdmin();
   const id = Number(formData.get("id"));
-  const data = paintingInput.parse({
+  const parsed = paintingInput.safeParse({
     title: formData.get("title"),
     description: formData.get("description") ?? "",
     categoryId: formData.get("categoryId"),
   });
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    return {
+      ok: false,
+      error: `${issue.path.join(".") || "Form"}: ${issue.message}`,
+    };
+  }
+  const data = parsed.data;
   const slug = uniqueSlug(
     slugify(data.title),
     await slugTaken(data.categoryId, id),
   );
-  await db
-    .update(paintings)
-    .set({
-      title: data.title,
-      description: data.description || null,
-      categoryId: data.categoryId,
-      slug,
-    })
-    .where(eq(paintings.id, id));
+  try {
+    await db
+      .update(paintings)
+      .set({
+        title: data.title,
+        description: data.description || null,
+        categoryId: data.categoryId,
+        slug,
+      })
+      .where(eq(paintings.id, id));
+  } catch (err) {
+    return { ok: false, error: (err as Error).message };
+  }
   revalidatePath("/admin/paintings");
   revalidatePath("/");
+  return { ok: true };
 }
 
 export async function deletePainting(formData: FormData) {

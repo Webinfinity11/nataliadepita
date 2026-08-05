@@ -7,14 +7,18 @@ export function isAllowedImage(file: { type: string; size: number }): boolean {
   return ALLOWED.includes(file.type) && file.size > 0 && file.size <= MAX_BYTES;
 }
 
+// Admin-authored copy lives in unbounded `text` columns, so this cap exists
+// only to stop runaway input — a long artist statement has to fit.
+const LONG_TEXT = 100_000;
+
 export const categoryInput = z.object({
   name: z.string().trim().min(1).max(120),
-  description: z.string().trim().max(2000).optional().or(z.literal("")),
+  description: z.string().trim().max(LONG_TEXT).optional().or(z.literal("")),
 });
 
 export const paintingInput = z.object({
   title: z.string().trim().min(1).max(200),
-  description: z.string().trim().max(5000).optional().or(z.literal("")),
+  description: z.string().trim().max(LONG_TEXT).optional().or(z.literal("")),
   categoryId: z.coerce.number().int().positive(),
 });
 

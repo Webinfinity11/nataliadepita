@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import type { Painting, Photo, Category } from "@/db/schema";
 import { ImageUploader } from "@/components/admin/ImageUploader";
@@ -24,6 +25,7 @@ export function PaintingForm({
   const router = useRouter();
   const [list, setList] = useState<Photo[]>(photos);
   const [saving, setSaving] = useState(false);
+  const [saveState, saveDetails] = useActionState(updatePainting, null);
 
   // Resync local order only when the SET of photos changes (add / remove),
   // so an optimistic reorder isn't clobbered by the post-save re-render.
@@ -100,7 +102,7 @@ export function PaintingForm({
 
       {/* details */}
       <form
-        action={updatePainting}
+        action={saveDetails}
         className="max-w-xl space-y-3 rounded-[8px] border border-ink-200 bg-white p-5"
       >
         <input type="hidden" name="id" value={painting.id} />
@@ -133,14 +135,22 @@ export function PaintingForm({
           <textarea
             name="description"
             defaultValue={painting.description ?? ""}
-            rows={4}
-            className="w-full"
-            placeholder="Optional"
+            rows={14}
+            className="w-full resize-y font-sans leading-relaxed"
+            placeholder="Optional — as long as you like"
           />
         </label>
-        <button className="bg-ink-900 px-4 py-2 text-sm font-medium text-ink-50">
-          Save
-        </button>
+        <div className="flex items-center gap-3">
+          <SaveButton />
+          {saveState?.ok && (
+            <span className="text-sm text-ink-500">Saved ✓</span>
+          )}
+        </div>
+        {saveState && !saveState.ok && (
+          <p className="rounded-[6px] border border-danger-600/30 bg-danger-50 px-3 py-2 text-sm text-danger-700">
+            Not saved — {saveState.error}
+          </p>
+        )}
       </form>
 
       {/* photos */}
@@ -247,6 +257,18 @@ export function PaintingForm({
         </button>
       </form>
     </div>
+  );
+}
+
+function SaveButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      disabled={pending}
+      className="bg-ink-900 px-4 py-2 text-sm font-medium text-ink-50 disabled:opacity-50"
+    >
+      {pending ? "Saving…" : "Save"}
+    </button>
   );
 }
 
