@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   categories,
@@ -8,7 +8,50 @@ import {
   photos,
   galleryPhotos,
   videos,
+  paintingVideos,
 } from "@/db/schema";
+
+export type Cover = {
+  url: string;
+  width: number | null;
+  height: number | null;
+};
+
+// A work with no photographs of its own stands on its video: the frame grabbed
+// when the file was uploaded becomes its cover, so it still earns a card in the
+// grid instead of being dropped.
+export async function videoCovers(
+  paintingIds: number[],
+): Promise<Map<number, Cover>> {
+  const covers = new Map<number, Cover>();
+  if (!paintingIds.length) return covers;
+  const rows = await db
+    .select({
+      paintingId: paintingVideos.paintingId,
+      url: paintingVideos.posterUrl,
+      width: paintingVideos.posterWidth,
+      height: paintingVideos.posterHeight,
+    })
+    .from(paintingVideos)
+    .where(
+      and(
+        inArray(paintingVideos.paintingId, paintingIds),
+        isNotNull(paintingVideos.posterUrl),
+      ),
+    )
+    .orderBy(asc(paintingVideos.position), asc(paintingVideos.id));
+  // First video wins — the list is already in the order the admin arranged.
+  for (const r of rows) {
+    if (!covers.has(r.paintingId)) {
+      covers.set(r.paintingId, {
+        url: r.url!,
+        width: r.width,
+        height: r.height,
+      });
+    }
+  }
+  return covers;
+}
 
 // A feature image (e.g. the Contact page): the highest-resolution portrait
 // painting from the "Paintings" collection. Falls back gracefully to any
@@ -82,6 +125,7 @@ export async function getAllWorks() {
   const catById = new Map(cats.map((c) => [c.id, c]));
   const works = await db
     .select({
+      id: paintings.id,
       title: paintings.title,
       slug: paintings.slug,
       categoryId: paintings.categoryId,
@@ -99,16 +143,20 @@ export async function getAllWorks() {
       ),
     )
     .orderBy(asc(paintings.position), asc(paintings.title));
+  const fallbacks = await videoCovers(
+    works.filter((p) => !p.coverPhotoUrl).map((p) => p.id),
+  );
   return works
-    .filter((p) => !!p.coverPhotoUrl && catById.has(p.categoryId))
+    .map((p) => ({ ...p, cover: coverFor(p, fallbacks) }))
+    .filter((p) => !!p.cover && catById.has(p.categoryId))
     .map((p) => {
       const cat = catById.get(p.categoryId)!;
       return {
         title: p.title,
         slug: p.slug,
-        coverPhotoUrl: p.coverPhotoUrl!,
-        coverWidth: p.coverWidth,
-        coverHeight: p.coverHeight,
+        coverPhotoUrl: p.cover!.url,
+        coverWidth: p.cover!.width,
+        coverHeight: p.cover!.height,
         categoryName: cat.name,
         categorySlug: cat.slug,
         categoryPosition: cat.position,
@@ -118,6 +166,22 @@ export async function getAllWorks() {
     // painting order within each category — sort is stable. This drives both the
     // portfolio filter tabs and the "All" category cards.
     .sort((a, b) => a.categoryPosition - b.categoryPosition);
+}
+
+// The work's own cover if it has one, otherwise its video's opening frame.
+export function coverFor(
+  p: {
+    id: number;
+    coverPhotoUrl: string | null;
+    coverWidth: number | null;
+    coverHeight: number | null;
+  },
+  fallbacks: Map<number, Cover>,
+): Cover | null {
+  if (p.coverPhotoUrl) {
+    return { url: p.coverPhotoUrl, width: p.coverWidth, height: p.coverHeight };
+  }
+  return fallbacks.get(p.id) ?? null;
 }
 
 export async function getFeaturedSlides() {

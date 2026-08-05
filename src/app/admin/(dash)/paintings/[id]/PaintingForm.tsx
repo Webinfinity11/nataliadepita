@@ -9,8 +9,8 @@ import type {
   PaintingVideo,
 } from "@/db/schema";
 import { ImageUploader } from "@/components/admin/ImageUploader";
-import { VideoEmbed } from "@/components/VideoEmbed";
-import { parseVideo } from "@/lib/video";
+import { VideoEmbed, VideoFile } from "@/components/VideoEmbed";
+import { parseVideo, isPortraitVideo } from "@/lib/video";
 import {
   updatePainting,
   deletePainting,
@@ -19,9 +19,11 @@ import {
   removePhoto,
   setCoverPhoto,
   addPaintingVideo,
+  addUploadedPaintingVideo,
   reorderPaintingVideos,
   removePaintingVideo,
 } from "../actions";
+import { uploadVideoWithPoster } from "@/lib/video-upload";
 
 export function PaintingForm({
   painting,
@@ -293,10 +295,30 @@ function VideoSection({
   const [title, setTitle] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [uploadPct, setUploadPct] = useState<number | null>(null);
 
   // Recognise the provider as the link is pasted, so the editor sees it took
   // before pressing Add — there is no provider to choose by hand.
   const detected = url.trim() ? parseVideo(url) : null;
+
+  async function uploadFile(file: File) {
+    setErr(null);
+    setBusy(true);
+    setUploadPct(0);
+    try {
+      const uploaded = await uploadVideoWithPoster(file, setUploadPct);
+      await addUploadedPaintingVideo(paintingId, uploaded, title);
+      setTitle("");
+      router.refresh();
+    } catch (e) {
+      setErr(
+        e instanceof Error ? e.message : "Could not upload the video file.",
+      );
+    } finally {
+      setBusy(false);
+      setUploadPct(null);
+    }
+  }
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
@@ -346,7 +368,8 @@ function VideoSection({
         </h2>
         <p className="mt-1 max-w-md text-sm text-ink-500">
           Paste a YouTube, Vimeo or Facebook link — the type is recognised
-          automatically.
+          automatically — or upload a video file. An uploaded video&apos;s first
+          frame becomes the work&apos;s card image when it has no photos.
         </p>
       </div>
 
@@ -384,6 +407,42 @@ function VideoSection({
         >
           {busy ? "Adding…" : "Add"}
         </button>
+
+        <div className="flex w-full items-center gap-3 border-t border-ink-100 pt-3">
+          <label
+            className={`inline-flex cursor-pointer items-center gap-2 rounded-[6px] border border-dashed border-ink-300 bg-white px-4 py-2.5 text-sm text-ink-700 transition-colors hover:border-ink-900 hover:text-ink-900 ${
+              busy ? "pointer-events-none opacity-60" : ""
+            }`}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            {uploadPct === null
+              ? "Upload a video file"
+              : `Uploading ${Math.round(uploadPct)}%…`}
+            <input
+              type="file"
+              accept="video/*"
+              disabled={busy}
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) uploadFile(file);
+              }}
+            />
+          </label>
+          <span className="text-xs text-ink-400">MP4 or WebM, up to 500 MB.</span>
+        </div>
       </form>
 
       {videos.length > 0 && (
@@ -398,13 +457,17 @@ function VideoSection({
                 {embed ? (
                   <VideoEmbed embed={embed} title={v.title} />
                 ) : (
-                  <p className="px-3 py-8 text-center text-xs text-danger-600">
-                    This link can no longer be played.
-                  </p>
+                  <VideoFile
+                    url={v.url}
+                    poster={v.posterUrl}
+                    title={v.title}
+                    portrait={isPortraitVideo(v)}
+                  />
                 )}
                 <div className="space-y-2 px-3 py-2">
                   <p className="truncate text-sm text-ink-700">
-                    {v.title || (embed ? PROVIDER_LABEL[embed.provider] : v.url)}
+                    {v.title ||
+                      (embed ? PROVIDER_LABEL[embed.provider] : "Uploaded file")}
                   </p>
                   <div className="flex items-center justify-between gap-1">
                     <div className="flex items-center gap-1">

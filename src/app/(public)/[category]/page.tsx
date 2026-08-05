@@ -3,6 +3,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { categories, paintings, photos } from "@/db/schema";
 import { PaintingGrid } from "@/components/PaintingGrid";
+import { videoCovers, coverFor } from "@/lib/queries";
 
 export default async function CategoryPage({
   params,
@@ -39,6 +40,19 @@ export default async function CategoryPage({
     )
     .where(eq(paintings.categoryId, cat.id))
     .orderBy(asc(paintings.position), asc(paintings.title));
+  // Works with no photographs fall back to their video's opening frame.
+  const fallbacks = await videoCovers(
+    rows.filter((p) => !p.coverPhotoUrl).map((p) => p.id),
+  );
+  const works = rows.map((p) => {
+    const cover = coverFor(p, fallbacks);
+    return {
+      ...p,
+      coverPhotoUrl: cover?.url ?? null,
+      coverWidth: cover?.width ?? null,
+      coverHeight: cover?.height ?? null,
+    };
+  });
   return (
     <main className="px-6 lg:px-12">
       <section className="mx-auto max-w-[1240px] pt-12 lg:pt-16">
@@ -56,7 +70,7 @@ export default async function CategoryPage({
         <div className="mt-12 border-t border-ink-200" />
       </section>
       <section className="mx-auto max-w-[1240px] py-14 lg:py-20">
-        <PaintingGrid categorySlug={cat.slug} paintings={rows} />
+        <PaintingGrid categorySlug={cat.slug} paintings={works} />
       </section>
     </main>
   );

@@ -4,8 +4,8 @@ import { and, asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { categories, paintings, photos, paintingVideos } from "@/db/schema";
 import { Lightbox } from "@/components/Lightbox";
-import { VideoEmbed } from "@/components/VideoEmbed";
-import { parseVideo } from "@/lib/video";
+import { VideoEmbed, VideoFile } from "@/components/VideoEmbed";
+import { parseVideo, isPortraitVideo } from "@/lib/video";
 
 export default async function PaintingPage({
   params,
@@ -39,10 +39,8 @@ export default async function PaintingPage({
     .from(paintingVideos)
     .where(eq(paintingVideos.paintingId, p.id))
     .orderBy(asc(paintingVideos.position));
-  const videos = clips.flatMap((v) => {
-    const embed = parseVideo(v.url);
-    return embed ? [{ ...v, embed }] : [];
-  });
+  // A link resolves to a provider embed; anything else is a file we host.
+  const videos = clips.map((v) => ({ ...v, embed: parseVideo(v.url) }));
   return (
     <article className="mx-auto max-w-4xl px-6 py-14 lg:py-20">
       <Link
@@ -69,7 +67,16 @@ export default async function PaintingPage({
         <section className="mt-14 space-y-12">
           {videos.map((v) => (
             <figure key={v.id}>
-              <VideoEmbed embed={v.embed} title={v.title} />
+              {v.embed ? (
+                <VideoEmbed embed={v.embed} title={v.title} />
+              ) : (
+                <VideoFile
+                  url={v.url}
+                  poster={v.posterUrl}
+                  title={v.title}
+                  portrait={isPortraitVideo(v)}
+                />
+              )}
               {v.title && (
                 <figcaption className="mt-4 font-display text-2xl leading-tight tracking-tight text-ink-900">
                   {v.title}
@@ -77,7 +84,7 @@ export default async function PaintingPage({
               )}
               {/* Facebook refuses to embed some videos (rights, privacy) —
                   always offer the original as a way through. */}
-              {v.embed.provider === "facebook" && (
+              {v.embed?.provider === "facebook" && (
                 <a
                   href={v.url}
                   target="_blank"

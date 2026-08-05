@@ -39,6 +39,15 @@ export function isSupportedVideoUrl(url: string): boolean {
   return parseVideo(url) !== null;
 }
 
+// An uploaded file has no provider to ask about shape — the poster frame was
+// grabbed at the video's own dimensions, so it answers the question.
+export function isPortraitVideo(v: {
+  posterWidth: number | null;
+  posterHeight: number | null;
+}): boolean {
+  return !!(v.posterWidth && v.posterHeight && v.posterHeight > v.posterWidth);
+}
+
 // Facebook has no id-based player URL — its plugin takes the original post URL
 // and renders the right player for reels, watch links and page videos alike.
 function parseFacebook(raw: string): VideoEmbed | null {

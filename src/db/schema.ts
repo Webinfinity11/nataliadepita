@@ -56,8 +56,15 @@ export const paintingVideos = pgTable("painting_videos", {
   paintingId: integer("painting_id")
     .notNull()
     .references(() => paintings.id, { onDelete: "cascade" }),
+  // Either a provider link (YouTube/Vimeo/Facebook) or, for an uploaded file,
+  // the Blob URL of the video itself.
   url: text("url").notNull(),
   title: text("title"),
+  // Still frame grabbed from the first moment of an uploaded video. Stands in
+  // as the work's cover when it has no photographs of its own.
+  posterUrl: text("poster_url"),
+  posterWidth: integer("poster_width"),
+  posterHeight: integer("poster_height"),
   position: integer("position").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

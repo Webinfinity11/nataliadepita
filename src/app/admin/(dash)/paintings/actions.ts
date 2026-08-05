@@ -210,6 +210,36 @@ export async function addPaintingVideo(
   revalidatePath("/");
 }
 
+// An uploaded file, already in Blob storage: the browser sent it there
+// directly and hands back the URLs of the video and its opening frame.
+export async function addUploadedPaintingVideo(
+  paintingId: number,
+  video: {
+    url: string;
+    posterUrl: string | null;
+    posterWidth: number | null;
+    posterHeight: number | null;
+  },
+  title: string,
+) {
+  await requireAdmin();
+  const existing = await db
+    .select({ id: paintingVideos.id })
+    .from(paintingVideos)
+    .where(eq(paintingVideos.paintingId, paintingId));
+  await db.insert(paintingVideos).values({
+    paintingId,
+    url: video.url,
+    title: title.trim() || null,
+    posterUrl: video.posterUrl,
+    posterWidth: video.posterWidth,
+    posterHeight: video.posterHeight,
+    position: existing.length,
+  });
+  revalidatePath(`/admin/paintings/${paintingId}`);
+  revalidatePath("/");
+}
+
 export async function reorderPaintingVideos(
   paintingId: number,
   orderedIds: number[],
