@@ -9,6 +9,8 @@ import {
   galleryPhotos,
   videos,
   paintingVideos,
+  pressArticles,
+  pressPhotos,
 } from "@/db/schema";
 
 export type Cover = {
@@ -108,6 +110,20 @@ export async function getGalleryPhotos() {
     .select()
     .from(galleryPhotos)
     .orderBy(asc(galleryPhotos.position), asc(galleryPhotos.id));
+}
+
+export async function getPressArticles() {
+  return db
+    .select()
+    .from(pressArticles)
+    .orderBy(asc(pressArticles.position), asc(pressArticles.id));
+}
+
+export async function getPressPhotos() {
+  return db
+    .select()
+    .from(pressPhotos)
+    .orderBy(asc(pressPhotos.position), asc(pressPhotos.id));
 }
 
 export async function getVideos() {

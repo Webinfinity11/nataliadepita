@@ -10,6 +10,7 @@ type DropItem = { name: string; href: string };
 const MEDIA_ITEMS: DropItem[] = [
   { name: "Photogallery", href: "/photogallery" },
   { name: "Videos", href: "/videos" },
+  { name: "Press", href: "/press" },
 ];
 
 const CHEVRON = (
@@ -39,7 +40,9 @@ export default function SiteHeader({ categories }: { categories: Cat[] }) {
         return pathname === "/portfolio" || catSlugs.has(firstSeg.slice(1));
       case "Media":
         return (
-          pathname.startsWith("/photogallery") || pathname.startsWith("/videos")
+          pathname.startsWith("/photogallery") ||
+          pathname.startsWith("/videos") ||
+          pathname.startsWith("/press")
         );
       case "Ribirabo Foundation":
         return pathname.startsWith("/ribirabo-foundation");

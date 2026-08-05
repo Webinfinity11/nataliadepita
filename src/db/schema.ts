@@ -133,6 +133,27 @@ export const galleryPhotos = pgTable("gallery_photos", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Media → Press: articles written about the artist, wherever they appeared.
+export const pressArticles = pgTable("press_articles", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  publication: text("publication"),
+  url: text("url").notNull(),
+  publishedOn: text("published_on"),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Cuttings and photographs that go with the press coverage.
+export const pressPhotos = pgTable("press_photos", {
+  id: serial("id").primaryKey(),
+  url: text("url").notNull(),
+  width: integer("width"),
+  height: integer("height"),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Media → Videos: embedded YouTube/Vimeo/Facebook links.
 export const videos = pgTable("videos", {
   id: serial("id").primaryKey(),
@@ -150,4 +171,6 @@ export type BlogPost = typeof blogPosts.$inferSelect;
 export type SiteSettings = typeof siteSettings.$inferSelect;
 export type ContactMessage = typeof contactMessages.$inferSelect;
 export type GalleryPhoto = typeof galleryPhotos.$inferSelect;
+export type PressArticle = typeof pressArticles.$inferSelect;
+export type PressPhoto = typeof pressPhotos.$inferSelect;
 export type Video = typeof videos.$inferSelect;
