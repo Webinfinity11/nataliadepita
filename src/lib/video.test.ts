@@ -68,6 +68,23 @@ describe("parseVideo — facebook", () => {
     );
   });
 
+  it("drops the tracking parameters an app-shared link carries", () => {
+    expect(
+      parseVideo(
+        "https://www.facebook.com/Ribirabo.Foundation/videos/1023028591859033/?extid=CL-UNK-UNK-UNK-IOS_GK0T-GK1C&ref=sharing",
+      )?.embedUrl,
+    ).toBe(
+      plugin(
+        "https://www.facebook.com/Ribirabo.Foundation/videos/1023028591859033/",
+      ),
+    );
+    // …but the video id a watch link keeps in the query has to survive.
+    expect(
+      parseVideo("https://www.facebook.com/watch/?v=1234567890&ref=sharing")
+        ?.embedUrl,
+    ).toBe(plugin("https://www.facebook.com/watch/?v=1234567890"));
+  });
+
   it("accepts fb.watch short links", () => {
     expect(parseVideo("https://fb.watch/AbCd1234x/")).toMatchObject({
       provider: "facebook",

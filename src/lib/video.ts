@@ -100,6 +100,14 @@ function canonical(url: URL): string {
   const c = new URL(url.href);
   c.protocol = "https:";
   c.hostname = "www.facebook.com";
+  // A link copied from the Facebook app arrives carrying tracking parameters
+  // (extid, ref, mibextid). They mean nothing to the plugin and only make the
+  // address it is asked to resolve less like the one Facebook published, so
+  // everything but the video id is dropped.
+  const v = c.searchParams.get("v");
+  c.search = "";
+  c.hash = "";
+  if (v) c.searchParams.set("v", v);
   return c.href;
 }
 
