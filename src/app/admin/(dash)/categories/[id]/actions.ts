@@ -30,6 +30,7 @@ export async function addSection(formData: FormData) {
     subtitle: String(formData.get("subtitle") ?? "").trim() || null,
     body: String(formData.get("body") ?? "").trim() || null,
     style,
+    half: !!formData.get("half"),
     position: rows.length,
   });
   await refresh(categoryId);
@@ -48,6 +49,7 @@ export async function updateSection(formData: FormData) {
       subtitle: String(formData.get("subtitle") ?? "").trim() || null,
       body: String(formData.get("body") ?? "").trim() || null,
       style: formData.get("style") === "group" ? "group" : "project",
+      half: !!formData.get("half"),
     })
     .where(eq(projectSections.id, id));
   await refresh(categoryId);

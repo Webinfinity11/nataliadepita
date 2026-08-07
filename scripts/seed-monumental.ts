@@ -1,4 +1,4 @@
-import { config } from "dotenv";
+﻿import { config } from "dotenv";
 config({ path: [".env.local", ".env"] });
 import { asc, eq } from "drizzle-orm";
 import { db } from "../src/db";
@@ -26,6 +26,8 @@ type Plan = {
   subtitle?: string;
   body?: string;
   style: "project" | "group";
+  // Pairs with the next half section, side by side.
+  half?: boolean;
   works: string[];
 };
 
@@ -49,8 +51,13 @@ const PLAN: Plan[] = [
     style: "project",
     works: [],
   },
-  { title: "First line", style: "group", works: ["first-line-view"] },
-  { title: "Second line", style: "group", works: ["second-line"] },
+  {
+    title: "First line",
+    style: "group",
+    half: true,
+    works: ["first-line-view"],
+  },
+  { title: "Second line", style: "group", half: true, works: ["second-line"] },
   {
     title: "Study paintings",
     style: "group",
@@ -59,6 +66,7 @@ const PLAN: Plan[] = [
   {
     title: "Abstract fragments",
     style: "group",
+    half: true,
     works: [
       "56",
       "57",
@@ -81,6 +89,7 @@ const PLAN: Plan[] = [
   {
     title: "Figurative",
     style: "group",
+    half: true,
     // The artist's order, start to finish.
     works: [
       "king-aeetes-medea-the-argonauts-the-golden-fleece-and-prometheus-the-symbol-of-freedom-and-devotion",
@@ -196,6 +205,7 @@ async function main() {
         subtitle: s.subtitle ?? null,
         body: s.body ?? null,
         style: s.style,
+        half: !!s.half,
         position: i,
       })
       .returning({ id: projectSections.id });
@@ -230,3 +240,4 @@ main().catch((e) => {
   console.error(e);
   process.exit(1);
 });
+

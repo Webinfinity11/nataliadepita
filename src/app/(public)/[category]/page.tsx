@@ -4,6 +4,70 @@ import { db } from "@/db";
 import { categories, paintings, photos, projectSections } from "@/db/schema";
 import { PaintingGrid } from "@/components/PaintingGrid";
 import { videoCovers, coverFor } from "@/lib/queries";
+import type { ProjectSection } from "@/db/schema";
+
+// Two half sections in a row stand side by side; everything else takes a row
+// of its own. Working the pairs out here keeps the page a flat list of rows.
+function pairUp(sections: ProjectSection[]): ProjectSection[][] {
+  const rows: ProjectSection[][] = [];
+  for (const s of sections) {
+    const last = rows[rows.length - 1];
+    if (s.half && last?.length === 1 && last[0].half) last.push(s);
+    else rows.push([s]);
+  }
+  return rows;
+}
+
+function SectionHeader({ section: s }: { section: ProjectSection }) {
+  const prose = (text: string, cls: string) => (
+    <div className={cls}>
+      {text.split(/\n{2,}/).map((para, i) => (
+        <p key={i} className="whitespace-pre-wrap">
+          {para}
+        </p>
+      ))}
+    </div>
+  );
+
+  if (s.style === "project") {
+    return (
+      <header className="mx-auto max-w-[820px] text-center">
+        <h2 className="font-display text-4xl tracking-tight text-ink-900 sm:text-5xl">
+          {s.title}
+        </h2>
+        {s.subtitle && (
+          <p className="mt-5 whitespace-pre-line text-sm leading-relaxed tracking-wide text-ink-500">
+            {s.subtitle}
+          </p>
+        )}
+        {s.body &&
+          prose(
+            s.body,
+            "mt-8 space-y-5 text-left text-lg leading-relaxed text-ink-700",
+          )}
+      </header>
+    );
+  }
+  // A quiet label, so a part of a project never competes with the project's
+  // own name for the eye.
+  return (
+    <header className="border-t border-ink-300 pt-5">
+      <h3 className="text-xs uppercase tracking-[0.28em] text-ink-500">
+        {s.title}
+      </h3>
+      {s.subtitle && (
+        <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink-500">
+          {s.subtitle}
+        </p>
+      )}
+      {s.body &&
+        prose(
+          s.body,
+          "mt-4 max-w-[820px] space-y-4 text-lg leading-relaxed text-ink-700",
+        )}
+    </header>
+  );
+}
 
 export default async function CategoryPage({
   params,
@@ -83,63 +147,42 @@ export default async function CategoryPage({
       </section>
 
       <div className="mx-auto max-w-[1240px] py-14 lg:py-20">
-        {sections.map((s) => {
-          const mine = works.filter((w) => w.sectionId === s.id);
-          const project = s.style === "project";
+        {pairUp(sections).map((row, i) => {
+          const paired = row.length === 2;
+          const opensAProject = row[0].style === "project";
           return (
-            <section
-              key={s.id}
-              className={project ? "mt-24 first:mt-0 lg:mt-32" : "mt-16 lg:mt-20"}
+            <div
+              key={row[0].id}
+              className={`${
+                i === 0 ? "" : opensAProject ? "mt-24 lg:mt-32" : "mt-16 lg:mt-20"
+              } ${paired ? "grid gap-14 lg:grid-cols-2 lg:gap-0" : ""}`}
             >
-              {project ? (
-                <header className="mx-auto max-w-[820px] text-center">
-                  <h2 className="font-display text-4xl tracking-tight text-ink-900 sm:text-5xl">
-                    {s.title}
-                  </h2>
-                  {s.subtitle && (
-                    <p className="mt-5 whitespace-pre-line text-sm leading-relaxed tracking-wide text-ink-500">
-                      {s.subtitle}
-                    </p>
-                  )}
-                  {s.body && (
-                    <div className="mt-8 space-y-5 text-left text-lg leading-relaxed text-ink-700">
-                      {s.body.split(/\n{2,}/).map((para, i) => (
-                        <p key={i} className="whitespace-pre-wrap">
-                          {para}
-                        </p>
-                      ))}
+              {row.map((s, j) => (
+                <section
+                  key={s.id}
+                  className={
+                    !paired
+                      ? ""
+                      : j === 0
+                        ? "lg:pr-10 xl:pr-14"
+                        : // The rule between the pair says, at a glance, that
+                          // these two columns are read side by side.
+                          "lg:border-l lg:border-ink-200 lg:pl-10 xl:pl-14"
+                  }
+                >
+                  <SectionHeader section={s} />
+                  {works.some((w) => w.sectionId === s.id) && (
+                    <div className={s.style === "project" ? "mt-14" : "mt-10"}>
+                      <PaintingGrid
+                        categorySlug={cat.slug}
+                        paintings={works.filter((w) => w.sectionId === s.id)}
+                        maxColumns={s.half ? 2 : 3}
+                      />
                     </div>
                   )}
-                </header>
-              ) : (
-                // A quiet label, so a part of a project never competes with the
-                // project's own name.
-                <header className="border-t border-ink-200 pt-6">
-                  <h3 className="text-xs uppercase tracking-[0.28em] text-ink-500">
-                    {s.title}
-                  </h3>
-                  {s.subtitle && (
-                    <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink-500">
-                      {s.subtitle}
-                    </p>
-                  )}
-                  {s.body && (
-                    <div className="mt-4 max-w-[820px] space-y-4 text-lg leading-relaxed text-ink-700">
-                      {s.body.split(/\n{2,}/).map((para, i) => (
-                        <p key={i} className="whitespace-pre-wrap">
-                          {para}
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                </header>
-              )}
-              {mine.length > 0 && (
-                <div className={project ? "mt-14" : "mt-10"}>
-                  <PaintingGrid categorySlug={cat.slug} paintings={mine} />
-                </div>
-              )}
-            </section>
+                </section>
+              ))}
+            </div>
           );
         })}
 

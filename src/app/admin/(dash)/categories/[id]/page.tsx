@@ -56,8 +56,9 @@ export default async function CategorySectionsPage({
           Sections split this collection into named parts on{" "}
           <span className="font-mono">/{cat.slug}</span>. A <b>project</b> opens
           a commission with its own heading and text; a <b>part of a project</b>{" "}
-          is a quiet label under it. A section with text but no works reads as an
-          introduction. Without sections the page stays one plain grid.
+          is a quiet label under it. Two <b>half</b> sections in a row stand side
+          by side. A section with text but no works reads as an introduction.
+          Without sections the page stays one plain grid.
         </p>
       </header>
 
@@ -88,6 +89,10 @@ export default async function CategorySectionsPage({
                 <select name="style" defaultValue={s.style}>
                   <option value="project">Project</option>
                   <option value="group">Part of a project</option>
+                </select>
+                <select name="half" defaultValue={s.half ? "1" : ""}>
+                  <option value="">Full width</option>
+                  <option value="1">Half — pairs with the next</option>
                 </select>
                 <span className="whitespace-nowrap text-xs uppercase tracking-[0.14em] text-ink-400">
                   {works.filter((w) => w.sectionId === s.id).length} works
@@ -162,6 +167,10 @@ export default async function CategorySectionsPage({
             <select name="style" defaultValue="project">
               <option value="project">Project</option>
               <option value="group">Part of a project</option>
+            </select>
+            <select name="half" defaultValue="">
+              <option value="">Full width</option>
+              <option value="1">Half — pairs with the next</option>
             </select>
             <button className="bg-ink-900 px-4 py-2 text-sm font-medium text-ink-50">
               Add
