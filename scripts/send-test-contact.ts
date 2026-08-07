@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 config({ path: [".env.local", ".env"] });
-import { notifyContact } from "../src/lib/mail";
+import { notifyContact, smtpSettings, sender, recipients } from "../src/lib/mail";
 
 // Sends one pretend enquiry, so the mail setup can be proved before it is
 // trusted with a real visitor's message.
@@ -8,18 +8,25 @@ import { notifyContact } from "../src/lib/mail";
 //   npx tsx scripts/send-test-contact.ts
 
 async function main() {
-  const missing = ["RESEND_API_KEY", "CONTACT_NOTIFY_TO"].filter(
-    (k) => !process.env[k],
-  );
+  const missing = [
+    "SMTP_HOST",
+    "SMTP_USER",
+    "SMTP_PASS",
+    "CONTACT_NOTIFY_TO",
+  ].filter((k) => !process.env[k]);
   if (missing.length) {
     console.error(`Not set in .env.local: ${missing.join(", ")}`);
     console.error(
-      "Add them, then run again. The key is read from the file — never type it here.",
+      "Add them, then run again. The password is read from the file — never type it here.",
     );
     process.exit(1);
   }
 
-  console.log(`Sending a test enquiry to ${process.env.CONTACT_NOTIFY_TO} …`);
+  const settings = smtpSettings()!;
+  console.log(
+    `Sending through ${settings.host}:${settings.port} as ${sender(settings)}\n` +
+      `           to ${recipients().join(", ")} …`,
+  );
   const sent = await notifyContact({
     name: "Test message",
     email: "visitor@example.com",
@@ -30,8 +37,8 @@ async function main() {
 
   if (sent) {
     console.log(
-      "Accepted by Resend. Check the inbox — and the spam folder, in case the " +
-        "first one lands there.",
+      "Accepted by the mail server. Check the inbox — and the spam folder, in " +
+        "case the first one lands there.",
     );
   } else {
     console.error("Not sent. The reason is printed above.");

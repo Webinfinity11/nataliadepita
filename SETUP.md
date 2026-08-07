@@ -20,6 +20,33 @@ ADMIN_PASSWORD=        # your admin login password
 - **Vercel Blob**: in the Vercel dashboard → Storage → create a Blob store, copy
   its read/write token. (On Vercel, this var is injected automatically.)
 
+### Contact-form email (optional)
+
+Enquiries are always stored and shown under Admin → Messages. To also be
+notified by email, add an SMTP account — any mailbox will do, so nothing here
+ties the site to one provider:
+
+```
+SMTP_HOST=             # e.g. smtp.gmail.com, smtp-relay.brevo.com
+SMTP_PORT=587          # 465 for implicit TLS; anything else uses STARTTLS
+SMTP_USER=             # the mailbox that sends
+SMTP_PASS=             # an app password / SMTP key, never the login password
+CONTACT_NOTIFY_TO=     # who is notified — comma-separated for several inboxes
+CONTACT_FROM=          # optional; defaults to SMTP_USER
+```
+
+- **Gmail**: turn on 2-step verification, then create an app password
+  (Account → Security → App passwords). 500 messages a day, free.
+- **Brevo**: free 300 a day, verify one sender address. Host
+  `smtp-relay.brevo.com`, port 587, and the SMTP key from the dashboard.
+
+Only the sender is ever verified, never the recipient, so notifications can be
+sent to a mailbox nobody here has access to. Prove it before trusting it:
+
+```bash
+npx tsx scripts/send-test-contact.ts
+```
+
 ## 2. Create the database tables
 
 ```bash

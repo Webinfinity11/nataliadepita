@@ -1,5 +1,52 @@
 import { describe, it, expect } from "vitest";
-import { contactNotification } from "./mail";
+import {
+  contactNotification,
+  smtpSettings,
+  sender,
+  recipients,
+} from "./mail";
+
+describe("smtpSettings", () => {
+  const account: Record<string, string | undefined> = {
+    SMTP_HOST: "smtp.gmail.com",
+    SMTP_USER: "studio@example.com",
+    SMTP_PASS: "app password",
+  };
+
+  it("defaults to the submission port, upgraded with STARTTLS", () => {
+    expect(smtpSettings(account)).toMatchObject({ port: 587, secure: false });
+  });
+
+  it("uses implicit TLS on 465", () => {
+    expect(smtpSettings({ ...account, SMTP_PORT: "465" })).toMatchObject({
+      port: 465,
+      secure: true,
+    });
+  });
+
+  it("stays silent rather than half-configured", () => {
+    expect(smtpSettings({})).toBeNull();
+    expect(smtpSettings({ ...account, SMTP_PASS: undefined })).toBeNull();
+  });
+
+  it("sends as the authenticated mailbox unless told otherwise", () => {
+    const s = smtpSettings(account)!;
+    expect(sender(s, {})).toBe("studio@example.com");
+    expect(sender(s, { CONTACT_FROM: "Studio <hello@example.com>" })).toBe(
+      "Studio <hello@example.com>",
+    );
+  });
+});
+
+describe("recipients", () => {
+  it("reads a comma-separated list and ignores the gaps", () => {
+    expect(recipients({ CONTACT_NOTIFY_TO: "a@x.com, ,b@x.com " })).toEqual([
+      "a@x.com",
+      "b@x.com",
+    ]);
+    expect(recipients({})).toEqual([]);
+  });
+});
 
 describe("contactNotification", () => {
   it("names the sender in the subject", () => {
