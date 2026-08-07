@@ -19,6 +19,30 @@ export const categories = pgTable("categories", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// A category can be broken into named parts — a monumental commission is one
+// project told in stages, not a flat wall of pictures. A category with no
+// sections keeps behaving exactly as before.
+export const projectSections = pgTable("project_sections", {
+  id: serial("id").primaryKey(),
+  categoryId: integer("category_id")
+    .notNull()
+    .references(() => categories.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  // The facts that sit under the heading — place, years, medium, size. Kept
+  // apart from the prose so they can be set in smaller type.
+  subtitle: text("subtitle"),
+  // Longer prose that introduces the section — the project description sits
+  // here, under a section carrying no works of its own.
+  body: text("body"),
+  // "full" runs the width of the page; two consecutive "half" sections sit
+  // side by side, which is how a pair like First line / Second line reads.
+  layout: text("layout", { enum: ["full", "half"] })
+    .notNull()
+    .default("full"),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const paintings = pgTable(
   "paintings",
   {
@@ -29,6 +53,11 @@ export const paintings = pgTable(
     categoryId: integer("category_id")
       .notNull()
       .references(() => categories.id, { onDelete: "restrict" }),
+    // Which part of the category this work belongs to. Unassigned works still
+    // show, gathered after the sections.
+    sectionId: integer("section_id").references(() => projectSections.id, {
+      onDelete: "set null",
+    }),
     coverPhotoUrl: text("cover_photo_url"),
     position: integer("position").notNull().default(0),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -169,6 +198,7 @@ export const videos = pgTable("videos", {
 });
 
 export type Category = typeof categories.$inferSelect;
+export type ProjectSection = typeof projectSections.$inferSelect;
 export type Painting = typeof paintings.$inferSelect;
 export type Photo = typeof photos.$inferSelect;
 export type PaintingVideo = typeof paintingVideos.$inferSelect;

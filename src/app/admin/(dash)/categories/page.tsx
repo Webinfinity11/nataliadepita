@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { categories, paintings } from "@/db/schema";
@@ -93,6 +94,12 @@ export default async function CategoriesPage() {
                 Save
               </button>
             </form>
+            <Link
+              href={`/admin/categories/${c.id}`}
+              className="whitespace-nowrap text-sm text-ink-500 underline decoration-ink-200 underline-offset-4 hover:text-ink-900"
+            >
+              Sections
+            </Link>
             <DeleteCategoryButton id={c.id} name={c.name} count={c.count} />
           </li>
         ))}
