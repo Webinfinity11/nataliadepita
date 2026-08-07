@@ -1,3 +1,23 @@
+// Every press entry is shown in the same 3:2 window, so the page has one
+// rhythm instead of a different one per photograph.
+export const PRESS_IMAGE_RATIO = 3 / 2;
+
+// Whether a picture can fill that window without losing anything that matters.
+// A press photograph shot landscape is a hair off 3:2 and cropping it by a few
+// percent is invisible; a photographed magazine page is nowhere near, and
+// cropping it to a strip would throw the article away. Those are shown whole,
+// centred on the card's own ground. Unknown dimensions are treated as the
+// second case — better a small picture than a mutilated one.
+export function fillsBox(
+  width: number | null,
+  height: number | null,
+  tolerance = 0.2,
+): boolean {
+  if (!width || !height) return false;
+  const ratio = width / height;
+  return Math.abs(ratio - PRESS_IMAGE_RATIO) / PRESS_IMAGE_RATIO <= tolerance;
+}
+
 // Hosts worth naming properly; anything else is recognisable enough as itself.
 const KNOWN: Record<string, string> = {
   "facebook.com": "Facebook",

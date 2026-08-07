@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { getPressArticles, getPressPhotos } from "@/lib/queries";
-import { readLabel } from "@/lib/press";
+import { readLabel, fillsBox } from "@/lib/press";
 
 const Arrow = ({ className = "" }: { className?: string }) => (
   <svg
@@ -49,15 +49,20 @@ export default async function PressPage() {
                       href={a.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group block overflow-hidden bg-ink-100"
+                      // Every entry gets the same window, whatever shape the
+                      // picture behind it happens to be.
+                      className="group relative block aspect-[3/2] overflow-hidden bg-ink-100"
                     >
                       <Image
                         src={a.imageUrl}
                         alt={a.title}
-                        width={a.imageWidth ?? 1200}
-                        height={a.imageHeight ?? 800}
+                        fill
                         sizes="(min-width: 1024px) 520px, 92vw"
-                        className="h-auto w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.03]"
+                        className={`transition-transform duration-[900ms] ease-out group-hover:scale-[1.03] ${
+                          fillsBox(a.imageWidth, a.imageHeight)
+                            ? "object-cover"
+                            : "object-contain"
+                        }`}
                       />
                     </a>
                     <div>

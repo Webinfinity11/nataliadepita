@@ -1,5 +1,22 @@
 import { describe, it, expect } from "vitest";
-import { readLabel } from "./press";
+import { readLabel, fillsBox } from "./press";
+
+describe("fillsBox", () => {
+  it("lets a landscape photograph fill the window", () => {
+    expect(fillsBox(1540, 1080)).toBe(true); // the Forbes photograph
+    expect(fillsBox(1200, 800)).toBe(true);
+  });
+
+  it("shows a magazine page whole rather than cropping it to a strip", () => {
+    expect(fillsBox(1494, 2048)).toBe(false); // the Beaumonde scan
+    expect(fillsBox(1000, 1000)).toBe(false);
+  });
+
+  it("does not gamble when the dimensions are unknown", () => {
+    expect(fillsBox(null, null)).toBe(false);
+    expect(fillsBox(1200, null)).toBe(false);
+  });
+});
 
 describe("readLabel", () => {
   it("names the publication when it hosts its own article", () => {
