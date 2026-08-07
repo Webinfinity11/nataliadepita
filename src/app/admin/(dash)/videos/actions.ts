@@ -56,13 +56,18 @@ export async function moveVideo(formData: FormData) {
   revalidatePath("/videos");
 }
 
-export async function updateVideoTitle(formData: FormData) {
+export async function updateVideo(formData: FormData) {
   await requireAdmin();
   const id = Number(formData.get("id"));
-  if (!id) return;
+  const url = String(formData.get("url") ?? "").trim();
+  if (!id || !url) return;
   await db
     .update(videos)
-    .set({ title: String(formData.get("title") ?? "").trim() || null })
+    .set({
+      title: String(formData.get("title") ?? "").trim() || null,
+      url,
+      linkOnly: !!formData.get("linkOnly"),
+    })
     .where(eq(videos.id, id));
   revalidatePath("/admin/videos");
   revalidatePath("/videos");

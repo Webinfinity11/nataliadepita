@@ -2,7 +2,7 @@ import { asc } from "drizzle-orm";
 import { db } from "@/db";
 import { videos } from "@/db/schema";
 import { parseVideo } from "@/lib/video";
-import { moveVideo, removeVideo, updateVideoTitle } from "./actions";
+import { moveVideo, removeVideo, updateVideo } from "./actions";
 import { VideoForm } from "./VideoForm";
 
 export default async function VideosAdminPage() {
@@ -41,7 +41,7 @@ export default async function VideosAdminPage() {
             return (
               <li
                 key={v.id}
-                className={`flex items-center gap-4 px-4 py-3 ${
+                className={`flex items-start gap-4 px-4 py-3 ${
                   i > 0 ? "border-t border-ink-100" : ""
                 }`}
               >
@@ -49,12 +49,12 @@ export default async function VideosAdminPage() {
                 <span className="shrink-0 rounded-[4px] bg-ink-100 px-2 py-1 text-[11px] uppercase tracking-[0.14em] text-ink-500">
                   {embed?.provider ?? "file"}
                 </span>
-                <div className="min-w-0 flex-1">
-                  <form
-                    action={updateVideoTitle}
-                    className="flex items-center gap-2"
-                  >
-                    <input type="hidden" name="id" value={v.id} />
+                <form
+                  action={updateVideo}
+                  className="min-w-0 flex-1 space-y-1.5"
+                >
+                  <input type="hidden" name="id" value={v.id} />
+                  <div className="flex items-center gap-2">
                     <input
                       name="title"
                       defaultValue={v.title ?? ""}
@@ -64,16 +64,24 @@ export default async function VideosAdminPage() {
                     <button className="rounded-[6px] border border-ink-300 px-2.5 py-1 text-xs text-ink-700 hover:border-ink-900 hover:text-ink-900">
                       Save
                     </button>
-                  </form>
-                  <a
-                    href={v.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-1 block truncate text-xs text-ink-400 underline decoration-ink-200 underline-offset-2 hover:text-ink-700"
-                  >
-                    {v.url}
-                  </a>
-                </div>
+                  </div>
+                  <input
+                    name="url"
+                    defaultValue={v.url}
+                    className="w-full text-xs"
+                  />
+                  {embed?.provider === "facebook" && (
+                    <label className="flex items-center gap-2 text-xs text-ink-500">
+                      <input
+                        type="checkbox"
+                        name="linkOnly"
+                        defaultChecked={v.linkOnly}
+                      />
+                      Facebook won&rsquo;t play this one — show the button
+                      instead of the player
+                    </label>
+                  )}
+                </form>
                 <form action={moveVideo}>
                   <input type="hidden" name="id" value={v.id} />
                   <input type="hidden" name="dir" value="up" />

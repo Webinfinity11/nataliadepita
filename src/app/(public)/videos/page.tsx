@@ -1,7 +1,7 @@
 import { getVideos } from "@/lib/queries";
 import { parseVideo, isPortraitVideo } from "@/lib/video";
 import { VideoEmbed, VideoFile } from "@/components/VideoEmbed";
-import { WatchOnFacebook } from "@/components/WatchOnFacebook";
+import { WatchOnFacebook, FacebookOnly } from "@/components/WatchOnFacebook";
 
 export default async function VideosPage() {
   const rows = await getVideos();
@@ -30,7 +30,9 @@ export default async function VideosPage() {
           <div className="grid grid-cols-1 gap-x-10 gap-y-14 lg:grid-cols-2">
             {videos.map((v) => (
               <figure key={v.id}>
-                {v.embed ? (
+                {v.linkOnly ? (
+                  <FacebookOnly url={v.url} />
+                ) : v.embed ? (
                   <VideoEmbed embed={v.embed} title={v.title} />
                 ) : (
                   <VideoFile
@@ -45,11 +47,9 @@ export default async function VideosPage() {
                     {v.title}
                   </figcaption>
                 )}
-                {/* Facebook refuses to embed some videos (rights, privacy) and
-                    leaves an empty frame behind, which reads as a broken site
-                    rather than a locked video. A button says plainly that there
-                    is somewhere else to watch it. */}
-                {v.embed?.provider === "facebook" && (
+                {/* Facebook also refuses to embed videos nobody has marked, so
+                    an embedded one still carries a way through. */}
+                {!v.linkOnly && v.embed?.provider === "facebook" && (
                   <WatchOnFacebook url={v.url} />
                 )}
               </figure>

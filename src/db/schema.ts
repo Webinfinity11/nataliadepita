@@ -203,6 +203,11 @@ export const videos = pgTable("videos", {
   posterUrl: text("poster_url"),
   posterWidth: integer("poster_width"),
   posterHeight: integer("poster_height"),
+  // Some Facebook videos refuse to embed and draw "Video Unavailable" in the
+  // frame instead. Nothing outside Facebook's own player can tell in advance —
+  // the post reads as public from every angle a server can see — so this is
+  // set by hand: the player is dropped and only the way through is shown.
+  linkOnly: boolean("link_only").notNull().default(false),
   position: integer("position").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
