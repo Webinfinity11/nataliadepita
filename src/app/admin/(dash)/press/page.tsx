@@ -5,10 +5,12 @@ import {
   addPressArticle,
   movePressArticle,
   removePressArticle,
+  removePressArticleImage,
   movePressPhoto,
   removePressPhoto,
 } from "./actions";
 import { PressUploader } from "./PressUploader";
+import { ArticleCover } from "./ArticleCover";
 
 export default async function PressAdminPage() {
   const articles = await db
@@ -95,6 +97,15 @@ export default async function PressAdminPage() {
                     {a.url}
                   </p>
                 </div>
+                <ArticleCover articleId={a.id} imageUrl={a.imageUrl} />
+                {a.imageUrl && (
+                  <form action={removePressArticleImage}>
+                    <input type="hidden" name="id" value={a.id} />
+                    <button className="text-xs text-ink-500 hover:text-ink-900">
+                      Remove photo
+                    </button>
+                  </form>
+                )}
                 <form action={movePressArticle}>
                   <input type="hidden" name="id" value={a.id} />
                   <input type="hidden" name="dir" value="up" />

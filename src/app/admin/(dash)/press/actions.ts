@@ -60,6 +60,52 @@ export async function removePressArticle(formData: FormData) {
   refresh();
 }
 
+// The picture that runs beside the headline. Uploading a second one replaces
+// the first, so the blob left behind is deleted along the way.
+export async function setPressArticleImage(
+  id: number,
+  img: { url: string; width: number; height: number },
+) {
+  await requireAdmin();
+  const [row] = await db
+    .select({ url: pressArticles.imageUrl })
+    .from(pressArticles)
+    .where(eq(pressArticles.id, id));
+  await db
+    .update(pressArticles)
+    .set({
+      imageUrl: img.url,
+      imageWidth: img.width || null,
+      imageHeight: img.height || null,
+    })
+    .where(eq(pressArticles.id, id));
+  if (row?.url && row.url !== img.url) await dropBlob(row.url);
+  refresh();
+}
+
+export async function removePressArticleImage(formData: FormData) {
+  await requireAdmin();
+  const id = Number(formData.get("id"));
+  const [row] = await db
+    .select({ url: pressArticles.imageUrl })
+    .from(pressArticles)
+    .where(eq(pressArticles.id, id));
+  await db
+    .update(pressArticles)
+    .set({ imageUrl: null, imageWidth: null, imageHeight: null })
+    .where(eq(pressArticles.id, id));
+  if (row?.url) await dropBlob(row.url);
+  refresh();
+}
+
+async function dropBlob(url: string) {
+  try {
+    await del(url);
+  } catch {
+    /* orphan/shared blob — ignore */
+  }
+}
+
 /* photos */
 
 export async function addPressPhotos(

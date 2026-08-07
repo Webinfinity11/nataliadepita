@@ -140,6 +140,11 @@ export const pressArticles = pgTable("press_articles", {
   publication: text("publication"),
   url: text("url").notNull(),
   publishedOn: text("published_on"),
+  // Optional picture that runs beside the headline on the public page. Without
+  // one the article falls back to a plain row, so older entries need no edit.
+  imageUrl: text("image_url"),
+  imageWidth: integer("image_width"),
+  imageHeight: integer("image_height"),
   position: integer("position").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
