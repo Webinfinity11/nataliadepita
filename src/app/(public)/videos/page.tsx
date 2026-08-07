@@ -1,13 +1,12 @@
 import { getVideos } from "@/lib/queries";
-import { parseVideo } from "@/lib/video";
-import { VideoEmbed } from "@/components/VideoEmbed";
+import { parseVideo, isPortraitVideo } from "@/lib/video";
+import { VideoEmbed, VideoFile } from "@/components/VideoEmbed";
+import { WatchOnFacebook } from "@/components/WatchOnFacebook";
 
 export default async function VideosPage() {
   const rows = await getVideos();
-  const videos = rows.flatMap((v) => {
-    const embed = parseVideo(v.url);
-    return embed ? [{ ...v, embed }] : [];
-  });
+  // A link resolves to a provider embed; anything else is a file we host.
+  const videos = rows.map((v) => ({ ...v, embed: parseVideo(v.url) }));
 
   return (
     <main className="px-6 lg:px-12">
@@ -31,23 +30,27 @@ export default async function VideosPage() {
           <div className="grid grid-cols-1 gap-x-10 gap-y-14 lg:grid-cols-2">
             {videos.map((v) => (
               <figure key={v.id}>
-                <VideoEmbed embed={v.embed} title={v.title} />
+                {v.embed ? (
+                  <VideoEmbed embed={v.embed} title={v.title} />
+                ) : (
+                  <VideoFile
+                    url={v.url}
+                    poster={v.posterUrl}
+                    title={v.title}
+                    portrait={isPortraitVideo(v)}
+                  />
+                )}
                 {v.title && (
                   <figcaption className="mt-4 font-display text-2xl leading-tight tracking-tight text-ink-900">
                     {v.title}
                   </figcaption>
                 )}
-                {/* Facebook refuses to embed some videos (rights, privacy) —
-                    always offer the original as a way through. */}
-                {v.embed.provider === "facebook" && (
-                  <a
-                    href={v.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-3 inline-block text-xs uppercase tracking-[0.18em] text-ink-500 underline decoration-ink-200 underline-offset-4 transition-colors hover:text-ink-900"
-                  >
-                    Watch on Facebook
-                  </a>
+                {/* Facebook refuses to embed some videos (rights, privacy) and
+                    leaves an empty frame behind, which reads as a broken site
+                    rather than a locked video. A button says plainly that there
+                    is somewhere else to watch it. */}
+                {v.embed?.provider === "facebook" && (
+                  <WatchOnFacebook url={v.url} />
                 )}
               </figure>
             ))}

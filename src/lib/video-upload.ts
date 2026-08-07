@@ -48,12 +48,13 @@ export async function firstFrame(file: File): Promise<Blob | null> {
 export async function uploadVideoWithPoster(
   file: File,
   onProgress?: (percent: number) => void,
+  folder = "painting-videos",
 ): Promise<UploadedVideo> {
   const poster = await firstFrame(file);
   let size: { width: number; height: number } | null = null;
   if (poster) size = await imageSize(poster);
 
-  const blob = await upload(safeName(file.name), file, {
+  const blob = await upload(safeName(file.name, folder), file, {
     access: "public",
     handleUploadUrl: HANDLE_URL,
     onUploadProgress: onProgress
@@ -64,7 +65,7 @@ export async function uploadVideoWithPoster(
   let posterUrl: string | null = null;
   if (poster) {
     const p = await upload(
-      safeName(file.name.replace(/\.[^.]+$/, "") + "-poster.jpg"),
+      safeName(file.name.replace(/\.[^.]+$/, "") + "-poster.jpg", folder),
       poster,
       { access: "public", handleUploadUrl: HANDLE_URL, contentType: "image/jpeg" },
     );
@@ -79,9 +80,9 @@ export async function uploadVideoWithPoster(
   };
 }
 
-function safeName(name: string) {
+function safeName(name: string, folder: string) {
   const clean = name.replace(/[^\w.-]+/g, "-").slice(-80);
-  return `painting-videos/${clean || "video"}`;
+  return `${folder}/${clean || "video"}`;
 }
 
 function once(el: HTMLVideoElement, event: string) {

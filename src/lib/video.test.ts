@@ -90,6 +90,16 @@ describe("parseVideo — facebook", () => {
       provider: "facebook",
     });
   });
+
+  it("cleans a shared fb.watch link without rewriting its host", () => {
+    // fb.watch has to stay itself — facebook.com/AbCd1234x is not the video.
+    expect(parseVideo("https://fb.watch/AbCd1234x/?fs=e")?.embedUrl).toBe(
+      plugin("https://fb.watch/AbCd1234x/"),
+    );
+    expect(parseVideo("https://fb.watch/AbCd1234x/?")?.embedUrl).toBe(
+      plugin("https://fb.watch/AbCd1234x/"),
+    );
+  });
 });
 
 describe("isSupportedVideoUrl", () => {

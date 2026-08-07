@@ -6,14 +6,30 @@ import { videos } from "@/db/schema";
 import { requireAdmin } from "@/lib/session";
 import { isSupportedVideoUrl } from "@/lib/video";
 
-export async function addVideo(url: string, title: string) {
+export type UploadedFile = {
+  url: string;
+  posterUrl: string | null;
+  posterWidth: number | null;
+  posterHeight: number | null;
+};
+
+// A link must be one this site can embed; an uploaded file arrives already in
+// Blob storage and is played by the browser itself, so it needs no provider.
+export async function addVideo(
+  url: string,
+  title: string,
+  file?: UploadedFile,
+) {
   await requireAdmin();
-  const u = url.trim();
-  if (!isSupportedVideoUrl(u)) throw new Error("Unsupported video URL");
+  const u = (file?.url ?? url).trim();
+  if (!file && !isSupportedVideoUrl(u)) throw new Error("Unsupported video URL");
   const rows = await db.select({ id: videos.id }).from(videos);
   await db.insert(videos).values({
     url: u,
     title: title.trim() || null,
+    posterUrl: file?.posterUrl ?? null,
+    posterWidth: file?.posterWidth ?? null,
+    posterHeight: file?.posterHeight ?? null,
     position: rows.length,
   });
   revalidatePath("/admin/videos");
@@ -36,6 +52,18 @@ export async function moveVideo(formData: FormData) {
     .update(videos)
     .set({ position: rows[idx].position })
     .where(eq(videos.id, rows[swap].id));
+  revalidatePath("/admin/videos");
+  revalidatePath("/videos");
+}
+
+export async function updateVideoTitle(formData: FormData) {
+  await requireAdmin();
+  const id = Number(formData.get("id"));
+  if (!id) return;
+  await db
+    .update(videos)
+    .set({ title: String(formData.get("title") ?? "").trim() || null })
+    .where(eq(videos.id, id));
   revalidatePath("/admin/videos");
   revalidatePath("/videos");
 }

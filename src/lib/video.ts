@@ -58,11 +58,16 @@ function parseFacebook(raw: string): VideoEmbed | null {
     .toLowerCase()
     .replace(/^(?:www|web|m|mbasic|business)\./, "");
 
-  // Short share links (fb.watch/xxxx) resolve inside the plugin.
+  // Short share links (fb.watch/xxxx) resolve inside the plugin. The host has
+  // to stay as it is — rewriting it to facebook.com would break the lookup —
+  // but the tracking parameters the app attaches are dropped all the same.
   if (host === "fb.watch") {
-    return /^\/[\w-]+\/?$/.test(url.pathname)
-      ? facebookEmbed(url.href, "landscape")
-      : null;
+    if (!/^\/[\w-]+\/?$/.test(url.pathname)) return null;
+    const clean = new URL(url.href);
+    clean.protocol = "https:";
+    clean.search = "";
+    clean.hash = "";
+    return facebookEmbed(clean.href, "landscape");
   }
 
   if (host !== "facebook.com") return null;

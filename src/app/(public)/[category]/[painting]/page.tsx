@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { categories, paintings, photos, paintingVideos } from "@/db/schema";
 import { Lightbox } from "@/components/Lightbox";
 import { VideoEmbed, VideoFile } from "@/components/VideoEmbed";
+import { WatchOnFacebook } from "@/components/WatchOnFacebook";
 import { parseVideo, isPortraitVideo } from "@/lib/video";
 
 export default async function PaintingPage({
@@ -85,14 +86,7 @@ export default async function PaintingPage({
               {/* Facebook refuses to embed some videos (rights, privacy) —
                   always offer the original as a way through. */}
               {v.embed?.provider === "facebook" && (
-                <a
-                  href={v.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-3 inline-block text-xs uppercase tracking-[0.18em] text-ink-500 underline decoration-ink-200 underline-offset-4 transition-colors hover:text-ink-900"
-                >
-                  Watch on Facebook
-                </a>
+                <WatchOnFacebook url={v.url} />
               )}
             </figure>
           ))}

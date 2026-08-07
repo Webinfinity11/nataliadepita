@@ -191,11 +191,18 @@ export const pressPhotos = pgTable("press_photos", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-// Media → Videos: embedded YouTube/Vimeo/Facebook links.
+// Media → Videos: either a provider link (YouTube/Vimeo/Facebook) or, for an
+// uploaded file, the Blob URL of the video itself — the same two cases the
+// videos attached to a single work already covered.
 export const videos = pgTable("videos", {
   id: serial("id").primaryKey(),
   url: text("url").notNull(),
   title: text("title"),
+  // Still frame from the opening moment of an uploaded video, so the player
+  // shows the work rather than a black rectangle.
+  posterUrl: text("poster_url"),
+  posterWidth: integer("poster_width"),
+  posterHeight: integer("poster_height"),
   position: integer("position").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

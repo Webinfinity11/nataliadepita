@@ -2,7 +2,7 @@ import { asc } from "drizzle-orm";
 import { db } from "@/db";
 import { videos } from "@/db/schema";
 import { parseVideo } from "@/lib/video";
-import { moveVideo, removeVideo } from "./actions";
+import { moveVideo, removeVideo, updateVideoTitle } from "./actions";
 import { VideoForm } from "./VideoForm";
 
 export default async function VideosAdminPage() {
@@ -19,11 +19,12 @@ export default async function VideosAdminPage() {
           Videos
         </h1>
         <p className="mt-2 text-sm text-ink-500">
-          Paste a YouTube, Vimeo or Facebook link — including Facebook reels and
-          watch links. Videos appear on the public Videos page, in this order.
-          Facebook blocks embedding for some videos (private ones, or ones using
-          someone else&rsquo;s music or footage); those still show a link to the
-          original.
+          Paste a YouTube, Vimeo or Facebook link — including reels, watch and
+          fb.watch links — or upload a video file. Videos appear on the public
+          Videos page, in this order. Facebook blocks embedding for some videos
+          (private ones, or ones using someone else&rsquo;s music or footage);
+          those show a &ldquo;Watch on Facebook&rdquo; button instead of an
+          empty frame.
         </p>
       </header>
 
@@ -46,17 +47,29 @@ export default async function VideosAdminPage() {
               >
                 <span className="w-5 text-sm text-ink-400">{i + 1}</span>
                 <span className="shrink-0 rounded-[4px] bg-ink-100 px-2 py-1 text-[11px] uppercase tracking-[0.14em] text-ink-500">
-                  {embed?.provider ?? "?"}
+                  {embed?.provider ?? "file"}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm text-ink-800">
-                    {v.title || "Untitled"}
-                  </p>
+                  <form
+                    action={updateVideoTitle}
+                    className="flex items-center gap-2"
+                  >
+                    <input type="hidden" name="id" value={v.id} />
+                    <input
+                      name="title"
+                      defaultValue={v.title ?? ""}
+                      placeholder="Title (optional)"
+                      className="min-w-0 flex-1"
+                    />
+                    <button className="rounded-[6px] border border-ink-300 px-2.5 py-1 text-xs text-ink-700 hover:border-ink-900 hover:text-ink-900">
+                      Save
+                    </button>
+                  </form>
                   <a
                     href={v.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="truncate text-xs text-ink-400 underline decoration-ink-200 underline-offset-2 hover:text-ink-700"
+                    className="mt-1 block truncate text-xs text-ink-400 underline decoration-ink-200 underline-offset-2 hover:text-ink-700"
                   >
                     {v.url}
                   </a>
