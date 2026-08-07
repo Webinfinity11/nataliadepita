@@ -6,6 +6,7 @@ import {
   movePressArticle,
   removePressArticle,
   removePressArticleImage,
+  updatePressArticle,
   movePressPhoto,
   removePressPhoto,
 } from "./actions";
@@ -89,14 +90,38 @@ export default async function PressAdminPage() {
                 }`}
               >
                 <span className="w-5 text-sm text-ink-400">{i + 1}</span>
-                <div className="min-w-[200px] flex-1">
-                  <p className="text-sm text-ink-900">{a.title}</p>
-                  <p className="truncate text-xs text-ink-400">
-                    {[a.publication, a.publishedOn].filter(Boolean).join(" · ")}
-                    {a.publication || a.publishedOn ? " — " : ""}
-                    {a.url}
-                  </p>
-                </div>
+                <form
+                  action={updatePressArticle}
+                  className="flex min-w-[260px] flex-1 flex-wrap items-center gap-2"
+                >
+                  <input type="hidden" name="id" value={a.id} />
+                  <input
+                    name="title"
+                    defaultValue={a.title}
+                    className="min-w-[200px] flex-1"
+                  />
+                  <input
+                    name="url"
+                    type="url"
+                    defaultValue={a.url}
+                    className="min-w-[200px] flex-1"
+                  />
+                  <input
+                    name="publication"
+                    defaultValue={a.publication ?? ""}
+                    placeholder="Publication"
+                    className="min-w-[130px]"
+                  />
+                  <input
+                    name="publishedOn"
+                    defaultValue={a.publishedOn ?? ""}
+                    placeholder="Date"
+                    className="min-w-[110px]"
+                  />
+                  <button className="rounded-[6px] border border-ink-300 px-3 py-1.5 text-sm text-ink-700 hover:border-ink-900 hover:text-ink-900">
+                    Save
+                  </button>
+                </form>
                 <ArticleCover articleId={a.id} imageUrl={a.imageUrl} />
                 {a.imageUrl && (
                   <form action={removePressArticleImage}>

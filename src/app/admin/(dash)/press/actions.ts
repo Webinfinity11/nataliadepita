@@ -31,6 +31,24 @@ export async function addPressArticle(formData: FormData) {
   refresh();
 }
 
+export async function updatePressArticle(formData: FormData) {
+  await requireAdmin();
+  const id = Number(formData.get("id"));
+  const title = String(formData.get("title") ?? "").trim();
+  const url = String(formData.get("url") ?? "").trim();
+  if (!id || !title || !url) return;
+  await db
+    .update(pressArticles)
+    .set({
+      title,
+      url,
+      publication: String(formData.get("publication") ?? "").trim() || null,
+      publishedOn: String(formData.get("publishedOn") ?? "").trim() || null,
+    })
+    .where(eq(pressArticles.id, id));
+  refresh();
+}
+
 export async function movePressArticle(formData: FormData) {
   await requireAdmin();
   const id = Number(formData.get("id"));
