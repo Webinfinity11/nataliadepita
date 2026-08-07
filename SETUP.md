@@ -27,16 +27,19 @@ notified by email, add an SMTP account — any mailbox will do, so nothing here
 ties the site to one provider:
 
 ```
-SMTP_HOST=             # e.g. smtp.gmail.com, smtp-relay.brevo.com
-SMTP_PORT=587          # 465 for implicit TLS; anything else uses STARTTLS
 SMTP_USER=             # the mailbox that sends
 SMTP_PASS=             # an app password / SMTP key, never the login password
 CONTACT_NOTIFY_TO=     # who is notified — comma-separated for several inboxes
+
+SMTP_HOST=             # only for a non-Gmail account, e.g. smtp-relay.brevo.com
+SMTP_PORT=587          # 465 for implicit TLS; anything else uses STARTTLS
 CONTACT_FROM=          # optional; defaults to SMTP_USER
 ```
 
 - **Gmail**: turn on 2-step verification, then create an app password
-  (Account → Security → App passwords). 500 messages a day, free.
+  (Account → Security → App passwords). 500 messages a day, free. A
+  `@gmail.com` address needs no host or port — it can only go through
+  `smtp.gmail.com` anyway.
 - **Brevo**: free 300 a day, verify one sender address. Host
   `smtp-relay.brevo.com`, port 587, and the SMTP key from the dashboard.
 

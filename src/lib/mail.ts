@@ -44,9 +44,14 @@ export type SmtpSettings = {
 type Env = Record<string, string | undefined>;
 
 export function smtpSettings(env: Env = process.env): SmtpSettings | null {
-  const host = env.SMTP_HOST?.trim();
   const user = env.SMTP_USER?.trim();
   const pass = env.SMTP_PASS;
+  // A Gmail address can only be sent through Gmail's own server, so making
+  // someone look up a hostname they have no choice about is two settings of
+  // pure ceremony. An explicit SMTP_HOST still wins.
+  const host =
+    env.SMTP_HOST?.trim() ||
+    (/@(?:gmail|googlemail)\.com$/i.test(user ?? "") ? "smtp.gmail.com" : "");
   if (!host || !user || !pass) return null;
   // 465 is implicit TLS; 587 and 25 open in the clear and are upgraded with
   // STARTTLS, which nodemailer does on its own when secure is false.

@@ -8,12 +8,10 @@ import { notifyContact, smtpSettings, sender, recipients } from "../src/lib/mail
 //   npx tsx scripts/send-test-contact.ts
 
 async function main() {
-  const missing = [
-    "SMTP_HOST",
-    "SMTP_USER",
-    "SMTP_PASS",
-    "CONTACT_NOTIFY_TO",
-  ].filter((k) => !process.env[k]);
+  // SMTP_HOST is not listed: a Gmail address supplies its own.
+  const missing = ["SMTP_USER", "SMTP_PASS", "CONTACT_NOTIFY_TO"].filter(
+    (k) => !process.env[k],
+  );
   if (missing.length) {
     console.error(`Not set in .env.local: ${missing.join(", ")}`);
     console.error(
@@ -22,7 +20,13 @@ async function main() {
     process.exit(1);
   }
 
-  const settings = smtpSettings()!;
+  const settings = smtpSettings();
+  if (!settings) {
+    console.error(
+      "SMTP_USER is not a Gmail address, so SMTP_HOST has to be set too.",
+    );
+    process.exit(1);
+  }
   console.log(
     `Sending through ${settings.host}:${settings.port} as ${sender(settings)}\n` +
       `           to ${recipients().join(", ")} …`,

@@ -29,6 +29,24 @@ describe("smtpSettings", () => {
     expect(smtpSettings({ ...account, SMTP_PASS: undefined })).toBeNull();
   });
 
+  it("knows where a Gmail address has to be sent from", () => {
+    expect(
+      smtpSettings({ SMTP_USER: "studio@gmail.com", SMTP_PASS: "x" }),
+    ).toMatchObject({ host: "smtp.gmail.com", port: 587 });
+    // Any other address still has to say where it sends from.
+    expect(
+      smtpSettings({ SMTP_USER: "studio@example.com", SMTP_PASS: "x" }),
+    ).toBeNull();
+    // …and a host given explicitly is never second-guessed.
+    expect(
+      smtpSettings({
+        SMTP_HOST: "smtp-relay.brevo.com",
+        SMTP_USER: "studio@gmail.com",
+        SMTP_PASS: "x",
+      }),
+    ).toMatchObject({ host: "smtp-relay.brevo.com" });
+  });
+
   it("sends as the authenticated mailbox unless told otherwise", () => {
     const s = smtpSettings(account)!;
     expect(sender(s, {})).toBe("studio@example.com");
