@@ -25,7 +25,7 @@ type Plan = {
   title: string;
   subtitle?: string;
   body?: string;
-  layout: "full" | "half";
+  style: "project" | "group";
   works: string[];
 };
 
@@ -38,8 +38,7 @@ const PLAN: Plan[] = [
       "",
       "“The History of Georgia from Mythology to the Present Day”",
       "",
-      "89,6 m²",
-      "Smalti mosaic",
+      "89,6 m² · Smalti mosaic",
     ].join("\n"),
     body: [
       "Created for the former Presidential Palace of Georgia, Water Mirrors is a monumental mosaic composition dedicated to the historical memory and cultural identity of Georgia.",
@@ -47,19 +46,19 @@ const PLAN: Plan[] = [
       "Water serves as the central metaphor of the project. Like time itself, it connects distant moments, dissolves boundaries and transforms individual fragments into a larger whole. Colours, forms and symbolic figures flow into one another, creating a layered visual narrative open to multiple readings.",
       "The project was realised in collaboration with Travisanutto Mosaici (Italy).",
     ].join("\n\n"),
-    layout: "full",
+    style: "project",
     works: [],
   },
-  { title: "First line", layout: "half", works: ["first-line-view"] },
-  { title: "Second line", layout: "half", works: ["second-line"] },
+  { title: "First line", style: "group", works: ["first-line-view"] },
+  { title: "Second line", style: "group", works: ["second-line"] },
   {
     title: "Study paintings",
-    layout: "full",
+    style: "group",
     works: ["study-painting", "study-final-version"],
   },
   {
     title: "Abstract fragments",
-    layout: "half",
+    style: "group",
     works: [
       "56",
       "57",
@@ -81,7 +80,7 @@ const PLAN: Plan[] = [
   },
   {
     title: "Figurative",
-    layout: "half",
+    style: "group",
     // The artist's order, start to finish.
     works: [
       "king-aeetes-medea-the-argonauts-the-golden-fleece-and-prometheus-the-symbol-of-freedom-and-devotion",
@@ -106,12 +105,12 @@ const PLAN: Plan[] = [
   },
   {
     title: "Making the mosaic",
-    layout: "full",
+    style: "group",
     works: ["71", "73", "78", "82", "83", "finished1", "finished2"],
   },
   {
     title: "Batumi Piazza",
-    layout: "full",
+    style: "project",
     works: [
       "batumi-piazza",
       "batumi-piazza-2",
@@ -127,7 +126,7 @@ const PLAN: Plan[] = [
   },
   {
     title: "Europe Square, Batumi",
-    layout: "full",
+    style: "project",
     works: [
       "europe-square-batumi",
       "europe-square-batumi-2",
@@ -160,7 +159,8 @@ async function main() {
   const bySlug = new Map(works.map((w) => [w.slug, w]));
 
   const missing = PLAN.flatMap((s) => s.works).filter((s) => !bySlug.has(s));
-  if (missing.length) throw new Error(`Not in the category: ${missing.join(", ")}`);
+  if (missing.length)
+    throw new Error(`Not in the category: ${missing.join(", ")}`);
   const planned = new Set(PLAN.flatMap((s) => s.works));
   const left = works.filter((w) => !planned.has(w.slug));
   if (left.length) {
@@ -173,18 +173,16 @@ async function main() {
 
   if (dry) {
     for (const s of PLAN) {
-      console.log(`${s.layout.padEnd(4)} ${s.title} — ${s.works.length} works`);
+      console.log(`${s.style.padEnd(7)} ${s.title} - ${s.works.length} works`);
     }
     for (const [slug, title] of Object.entries(RENAMES)) {
-      console.log(`rename ${slug}: "${bySlug.get(slug)?.title}" → "${title}"`);
+      console.log(`rename ${slug}: "${bySlug.get(slug)?.title}" -> "${title}"`);
     }
     process.exit(0);
   }
 
   // Start from a clean slate so a re-run is not a second set of sections.
-  await db
-    .delete(projectSections)
-    .where(eq(projectSections.categoryId, cat.id));
+  await db.delete(projectSections).where(eq(projectSections.categoryId, cat.id));
 
   // One running number across the category: works are ordered by position, so
   // laying them out section by section puts each one where the plan says.
@@ -197,7 +195,7 @@ async function main() {
         title: s.title,
         subtitle: s.subtitle ?? null,
         body: s.body ?? null,
-        layout: s.layout,
+        style: s.style,
         position: i,
       })
       .returning({ id: projectSections.id });
@@ -208,7 +206,7 @@ async function main() {
         .set({ sectionId: row.id, position: pos++ })
         .where(eq(paintings.id, w.id));
     }
-    console.log(`${s.title} — ${s.works.length} works`);
+    console.log(`${s.title} - ${s.works.length} works`);
   }
   for (const w of left) {
     await db
@@ -221,10 +219,10 @@ async function main() {
     const w = bySlug.get(slug);
     if (!w) continue;
     await db.update(paintings).set({ title }).where(eq(paintings.id, w.id));
-    console.log(`renamed "${w.title}" → "${title}" (still at /${CATEGORY}/${slug})`);
+    console.log(`renamed "${w.title}" -> "${title}"`);
   }
 
-  console.log("Done — edit any of it under Admin → Categories → Sections.");
+  console.log("Done - edit any of it under Admin > Categories > Sections.");
   process.exit(0);
 }
 

@@ -19,7 +19,7 @@ export async function addSection(formData: FormData) {
   const categoryId = Number(formData.get("categoryId"));
   const title = String(formData.get("title") ?? "").trim();
   if (!categoryId || !title) return;
-  const layout = formData.get("layout") === "half" ? "half" : "full";
+  const style = formData.get("style") === "group" ? "group" : "project";
   const rows = await db
     .select({ id: projectSections.id })
     .from(projectSections)
@@ -29,7 +29,7 @@ export async function addSection(formData: FormData) {
     title,
     subtitle: String(formData.get("subtitle") ?? "").trim() || null,
     body: String(formData.get("body") ?? "").trim() || null,
-    layout,
+    style,
     position: rows.length,
   });
   await refresh(categoryId);
@@ -47,7 +47,7 @@ export async function updateSection(formData: FormData) {
       title,
       subtitle: String(formData.get("subtitle") ?? "").trim() || null,
       body: String(formData.get("body") ?? "").trim() || null,
-      layout: formData.get("layout") === "half" ? "half" : "full",
+      style: formData.get("style") === "group" ? "group" : "project",
     })
     .where(eq(projectSections.id, id));
   await refresh(categoryId);

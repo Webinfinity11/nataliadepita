@@ -34,11 +34,12 @@ export const projectSections = pgTable("project_sections", {
   // Longer prose that introduces the section — the project description sits
   // here, under a section carrying no works of its own.
   body: text("body"),
-  // "full" runs the width of the page; two consecutive "half" sections sit
-  // side by side, which is how a pair like First line / Second line reads.
-  layout: text("layout", { enum: ["full", "half"] })
+  // A "project" opens a commission and carries its own display heading; a
+  // "group" is a quiet label for one part of the project above it. Both run
+  // the full width — the page reads as one column, top to bottom.
+  style: text("style", { enum: ["project", "group"] })
     .notNull()
-    .default("full"),
+    .default("project"),
   position: integer("position").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

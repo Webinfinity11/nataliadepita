@@ -54,8 +54,9 @@ export default async function CategorySectionsPage({
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-ink-500">
           Sections split this collection into named parts on{" "}
-          <span className="font-mono">/{cat.slug}</span>. Two “half” sections in
-          a row stand side by side; a section with text but no works reads as an
+          <span className="font-mono">/{cat.slug}</span>. A <b>project</b> opens
+          a commission with its own heading and text; a <b>part of a project</b>{" "}
+          is a quiet label under it. A section with text but no works reads as an
           introduction. Without sections the page stays one plain grid.
         </p>
       </header>
@@ -84,9 +85,9 @@ export default async function CategorySectionsPage({
                   defaultValue={s.title}
                   className="min-w-[220px] flex-1"
                 />
-                <select name="layout" defaultValue={s.layout}>
-                  <option value="full">Full width</option>
-                  <option value="half">Half width</option>
+                <select name="style" defaultValue={s.style}>
+                  <option value="project">Project</option>
+                  <option value="group">Part of a project</option>
                 </select>
                 <span className="whitespace-nowrap text-xs uppercase tracking-[0.14em] text-ink-400">
                   {works.filter((w) => w.sectionId === s.id).length} works
@@ -158,9 +159,9 @@ export default async function CategorySectionsPage({
               required
               className="min-w-[220px] flex-1"
             />
-            <select name="layout" defaultValue="full">
-              <option value="full">Full width</option>
-              <option value="half">Half width</option>
+            <select name="style" defaultValue="project">
+              <option value="project">Project</option>
+              <option value="group">Part of a project</option>
             </select>
             <button className="bg-ink-900 px-4 py-2 text-sm font-medium text-ink-50">
               Add
