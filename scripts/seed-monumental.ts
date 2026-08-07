@@ -58,11 +58,7 @@ const PLAN: Plan[] = [
     works: ["first-line-view"],
   },
   { title: "Second line", style: "group", half: true, works: ["second-line"] },
-  {
-    title: "Study paintings",
-    style: "group",
-    works: ["study-painting", "study-final-version"],
-  },
+  { title: "Study paintings", style: "group", works: ["study-painting"] },
   {
     title: "Abstract fragments",
     style: "group",
@@ -115,10 +111,23 @@ const PLAN: Plan[] = [
   {
     title: "Making the mosaic",
     style: "group",
-    works: ["71", "73", "78", "82", "83", "finished1", "finished2"],
+    works: ["71", "73", "78", "82", "83"],
+  },
+  {
+    title: "Georgian Presidential Palace. Facade",
+    subtitle: "33 m² · Smalti, gold smalti",
+    style: "project",
+    // The final study leads, then the frieze as it stands on the building.
+    works: ["study-final-version", "finished1", "finished2"],
   },
   {
     title: "Batumi Piazza",
+    subtitle: "106 m² · Marble, ceramic composite",
+    body: [
+      "A unique feature of the piazza square is a central mosaic of 106 sq m, which is considered the largest figurative marble mosaic in Europe.",
+      "The mosaic was created in 2010, according to de Pita Amirejibi’s original sketches at the Fantini Mosaici workshop in Abu Dhabi. Upon its completion the mosaics were transferred to Batumi and then assembled piece by piece under Natalia de Pita Amirejibi’s personal supervision in August 2010.",
+      "The concept of the whole mosaic is a harmony between sea elements and an unceasing modern urban expanse. The mosaic composition consists of eight circles laid one in the other, which reminds us of whirlpools on a sea surface. Each circle is decorated with ornamental and figurative elements, wherein the central circle is a figurative composition of five female figures. These clothed in red, light blue, purple, pink and green figures embody female hypostases of marine deities. Where the colour worn by the goddesses chimes with their individual persona’s characters. Also, it’s known that a prototype for the central figure of the composition, a small siren (mermaid), was the designer’s five year old daughter Romina.",
+    ].join("\n\n"),
     style: "project",
     works: [
       "batumi-piazza",
@@ -135,6 +144,10 @@ const PLAN: Plan[] = [
   },
   {
     title: "Europe Square, Batumi",
+    subtitle: [
+      "Total surface: 27 m² · Smalti, gold smalti",
+      "Realised in collaboration with Travisanutto Mosaici (Italy).",
+    ].join("\n"),
     style: "project",
     works: [
       "europe-square-batumi",
