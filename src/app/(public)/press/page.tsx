@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { getPressArticles, getPressPhotos } from "@/lib/queries";
+import { readLabel } from "@/lib/press";
 
 const Arrow = ({ className = "" }: { className?: string }) => (
   <svg
@@ -16,11 +17,6 @@ const Arrow = ({ className = "" }: { className?: string }) => (
     <path d="M5 12h14M13 6l6 6-6 6" />
   </svg>
 );
-
-// "Read on Forbes Georgia" says where the link goes; without the publication
-// on record there is nothing truthful to name, so it stays generic.
-const readLabel = (publication: string | null) =>
-  publication ? `Read on ${publication}` : "Read the article";
 
 export default async function PressPage() {
   const [articles, photos] = await Promise.all([
@@ -88,7 +84,7 @@ export default async function PressPage() {
                         rel="noopener noreferrer"
                         className="group mt-7 inline-flex items-center gap-3 border border-ink-900 px-6 py-3 text-[11px] uppercase tracking-[0.24em] text-ink-900 transition-colors duration-300 hover:bg-ink-900 hover:text-ink-50"
                       >
-                        {readLabel(a.publication)}
+                        {readLabel(a.publication, a.url)}
                         <Arrow className="transition-transform duration-300 group-hover:translate-x-1" />
                       </a>
                     </div>
