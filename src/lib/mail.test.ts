@@ -99,6 +99,28 @@ describe("contactNotification", () => {
     expect(text).toContain("nino@example.com");
   });
 
+  it("names the visitor and their address in the HTML part", () => {
+    const { html } = contactNotification({
+      name: "Nino",
+      email: "nino@example.com",
+      message: "Is the Batumi mosaic documented anywhere?",
+    });
+    expect(html).toContain("Nino");
+    expect(html).toContain("mailto:nino@example.com");
+    expect(html).toContain("Is the Batumi mosaic documented anywhere?");
+  });
+
+  it("keeps a visitor's markup out of the HTML part", () => {
+    const { html } = contactNotification({
+      name: "<script>alert(1)</script>",
+      email: "nino@example.com",
+      message: 'Nice site" onload="steal()',
+    });
+    expect(html).not.toContain("<script>");
+    expect(html).toContain("&lt;script&gt;");
+    expect(html).not.toContain('onload="steal()');
+  });
+
   it("falls back when a name is somehow blank", () => {
     const { subject } = contactNotification({
       name: "   ",
